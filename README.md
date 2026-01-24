@@ -13,130 +13,105 @@ Each tool is self-contained with its own documentation and executable scripts.
 
 ## Installation
 
-### Quick Install (AI Agents)
+### Install Specific Skills (AI Agents)
 
 ```bash
-npx skills add tumf/skills --skill firecrawl
+# Install a specific skill
+npx skills add tumf/skills --skill <skill-name>
 ```
 
-### Manual Installation
+```bash
+npx skills add tumf/skills
+```
+
+### Clone Repository
 
 ```bash
+# Clone entire repository
 git clone https://github.com/tumf/skills.git
-cd skills/firecrawl
+cd skills
 
-# Install dependencies
-pip install firecrawl-py
-
-# Set up environment variables
-export FIRECRAWL_API_KEY="your-api-key-here"
-
-# Use the scripts
-./scripts/scrape.py "https://example.com"
+# Navigate to specific skill and follow its README
+cd <skill-name>
+cat README.md
 ```
 
-## Available Tools
+## Available Skills
 
-### 🔥 [Firecrawl](./firecrawl)
+### 🔥 [Firecrawl](./firecrawl) - Web Scraping Toolkit
 
-Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API.
+Comprehensive web scraping, crawling, and data extraction powered by Firecrawl API.
 
-**6 Tools Included:**
-- `scrape.py` - Single page scraping (fastest)
-- `search.py` - Web search and scraping
-- `map.py` - URL discovery
-- `crawl.py` - Multi-page crawling
-- `extract.py` - Structured data extraction with JSON schema
-- `agent.py` - Autonomous web data gathering
+**Tools**: scrape, search, map, crawl, extract, agent  
+**Installation**: `npx skills add tumf/skills --skill firecrawl`
 
-**Quick Start:**
-```bash
-# Install
-npx skills add tumf/skills --skill firecrawl
-# or manually: pip install firecrawl-py
+**[📖 Documentation](./firecrawl/README.md)**
 
-# Set API key
-export FIRECRAWL_API_KEY="your-api-key-here"
+---
 
-# Use
-./firecrawl/scripts/scrape.py "https://example.com"
-```
+*More skills coming soon...*
 
-**[📖 Full Documentation](./firecrawl/README.md)** | [SKILL.md](./firecrawl/SKILL.md)
+## General Usage
 
-## Usage Examples
+Each skill is self-contained with its own scripts and documentation. After installation:
 
 ### Command Line
 
-Use scripts directly from your terminal:
-
 ```bash
-# Quick data extraction
-./firecrawl/scripts/scrape.py "https://example.com" > output.md
+# Navigate to skill directory
+cd <skill-name>
 
-# Batch processing
-for url in $(cat urls.txt); do
-  ./firecrawl/scripts/scrape.py "$url"
-done
+# View documentation
+cat README.md
 
-# Pipe to other tools
-./firecrawl/scripts/search.py "AI news" | jq '.data'
+# Run scripts
+./scripts/<script-name>.py [arguments]
 ```
 
 ### Python Integration
-
-Use in your Python projects:
 
 ```python
 import subprocess
 import json
 
-# Call script and parse JSON output
+# Call any skill script
 result = subprocess.run(
-    ["./firecrawl/scripts/scrape.py", "https://example.com"],
+    ["./path/to/skill/scripts/script.py", "arg1"],
     capture_output=True,
     text=True
 )
 data = json.loads(result.stdout)
-
-# Process the scraped data
-if data['success']:
-    content = data['data']['markdown']
-    print(content)
 ```
 
 ### Automation & CI/CD
 
-Integrate into automated workflows:
-
 ```bash
-# Cron job for daily scraping
-0 9 * * * cd /path/to/skills/firecrawl && ./scripts/scrape.py "https://example.com" >> /var/log/scrape.log
-
-# GitHub Actions
-- name: Scrape website
-  run: |
-    cd firecrawl
-    ./scripts/scrape.py "https://example.com" > data.md
+# Cron jobs, shell scripts, GitHub Actions, etc.
+cd /path/to/skills/<skill-name>
+./scripts/<script>.py [args]
 ```
 
 ## Repository Structure
 
-Each tool is organized as a self-contained module:
-
 ```
 skills/
-├── README.md                # This file
-└── firecrawl/              # Firecrawl web scraping toolkit
-    ├── README.md           # Full documentation and usage guide
-    ├── SKILL.md            # Skill metadata (for AI agents)
-    └── scripts/            # Executable Python scripts
-        ├── scrape.py       # Single page scraping
-        ├── search.py       # Web search
-        ├── map.py          # URL discovery
-        ├── crawl.py        # Multi-page crawling
-        ├── extract.py      # Structured data extraction
-        └── agent.py        # Autonomous data gathering
+├── README.md                # This file - collection overview
+├── LICENSE                  # MIT License
+│
+├── <skill-name>/           # Each skill is self-contained
+│   ├── README.md           # Skill documentation
+│   ├── SKILL.md            # AI agent metadata (optional)
+│   ├── scripts/            # Executable scripts
+│   ├── references/         # Additional docs (optional)
+│   └── assets/             # Templates, configs (optional)
+│
+└── firecrawl/              # Example: Firecrawl web scraping
+    ├── README.md
+    ├── SKILL.md
+    └── scripts/
+        ├── scrape.py
+        ├── search.py
+        └── ...
 ```
 
 ## Adding New Tools
