@@ -1,6 +1,14 @@
 ---
 name: firecrawl
-description: Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API. Provides scripts for single-page scraping (scrape.py), web search (search.py), URL discovery (map.py), multi-page crawling (crawl.py), structured data extraction (extract.py), and autonomous data gathering (agent.py). Use when you need to: (1) Extract content from web pages, (2) Search and scrape the web, (3) Discover URLs on websites, (4) Crawl multiple pages, (5) Extract structured data with JSON schemas, or (6) Autonomously gather data from anywhere on the web. Requires FIRECRAWL_API_KEY environment variable.
+description: |
+  Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API.
+  Provides scripts for single-page scraping (scrape.py), web search (search.py),
+  URL discovery (map.py), multi-page crawling (crawl.py), structured data extraction (extract.py),
+  and autonomous data gathering (agent.py).
+  Use when you need to: (1) extract content from web pages, (2) search and scrape the web,
+  (3) discover URLs on websites, (4) crawl multiple pages, (5) extract structured data with JSON schemas,
+  or (6) autonomously gather data from anywhere on the web.
+  Requires FIRECRAWL_API_KEY environment variable.
 ---
 
 # Firecrawl Web Scraping & Data Extraction
