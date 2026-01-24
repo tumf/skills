@@ -1,162 +1,74 @@
 # Skills
 
-A collection of reusable command-line tools for web scraping, data extraction, and automation tasks.
+A collection of skills for AI coding agents and command-line automation.
 
-## Overview
-
-This repository provides ready-to-use scripts and tools that can be used in multiple ways:
-- **Standalone tools**: Use the scripts directly from the command line
-- **Integration**: Import into your own projects and workflows
-- **Automation**: Integrate into shell scripts, cron jobs, or CI/CD pipelines
-
-Each tool is self-contained with its own documentation and executable scripts.
-
-## Installation
-
-### Install Specific Skills (AI Agents)
-
-```bash
-# Install a specific skill
-npx skills add tumf/skills --skill <skill-name>
-```
-
-```bash
-npx skills add tumf/skills
-```
-
-### Clone Repository
-
-```bash
-# Clone entire repository
-git clone https://github.com/tumf/skills.git
-cd skills
-
-# Navigate to specific skill and follow its README
-cd <skill-name>
-cat README.md
-```
+Skills follow the [Agent Skills](https://agentskills.io/) format.
 
 ## Available Skills
 
-### 🔥 [Firecrawl](./firecrawl) - Web Scraping Toolkit
+### firecrawl
 
-Comprehensive web scraping, crawling, and data extraction powered by Firecrawl API.
+Web scraping, crawling, and data extraction powered by Firecrawl API.
 
-**Tools**: scrape, search, map, crawl, extract, agent  
-**Installation**: `npx skills add tumf/skills --skill firecrawl`
+**Use when:**
+- Extracting content from web pages
+- Searching and scraping the web
+- Discovering URLs on websites
+- Crawling multiple pages
+- Extracting structured data with JSON schemas
+- Autonomously gathering data from the web
 
-**[📖 Documentation](./firecrawl/README.md)**
+**Tools included:**
+- `scrape.py` - Single page scraping (fastest, most reliable)
+- `search.py` - Web search with optional scraping
+- `map.py` - URL discovery before scraping
+- `crawl.py` - Multi-page content extraction
+- `extract.py` - LLM-powered structured data extraction
+- `agent.py` - Autonomous web data gathering
+
+**[→ Documentation](./firecrawl/README.md)**
 
 ---
 
 *More skills coming soon...*
 
-## General Usage
-
-Each skill is self-contained with its own scripts and documentation. After installation:
-
-### Command Line
+## Installation
 
 ```bash
-# Navigate to skill directory
-cd <skill-name>
-
-# View documentation
-cat README.md
-
-# Run scripts
-./scripts/<script-name>.py [arguments]
+npx skills add tumf/skills --skill <skill-name>
 ```
 
-### Python Integration
-
-```python
-import subprocess
-import json
-
-# Call any skill script
-result = subprocess.run(
-    ["./path/to/skill/scripts/script.py", "arg1"],
-    capture_output=True,
-    text=True
-)
-data = json.loads(result.stdout)
-```
-
-### Automation & CI/CD
-
+Example:
 ```bash
-# Cron jobs, shell scripts, GitHub Actions, etc.
-cd /path/to/skills/<skill-name>
-./scripts/<script>.py [args]
+npx skills add tumf/skills --skill firecrawl
 ```
 
-## Repository Structure
+## Usage
+
+Skills are automatically available once installed. The agent will use them when relevant tasks are detected.
+
+**Examples:**
 
 ```
-skills/
-├── README.md                # This file - collection overview
-├── LICENSE                  # MIT License
-│
-├── <skill-name>/           # Each skill is self-contained
-│   ├── README.md           # Skill documentation
-│   ├── SKILL.md            # AI agent metadata (optional)
-│   ├── scripts/            # Executable scripts
-│   ├── references/         # Additional docs (optional)
-│   └── assets/             # Templates, configs (optional)
-│
-└── firecrawl/              # Example: Firecrawl web scraping
-    ├── README.md
-    ├── SKILL.md
-    └── scripts/
-        ├── scrape.py
-        ├── search.py
-        └── ...
+Scrape the content from https://example.com
 ```
 
-## Adding New Tools
+```
+Search the web for "latest AI research papers"
+```
 
-Want to add your own tool? Follow this structure:
+```
+Extract pricing information from this webpage
+```
 
-1. **Create a directory** for your tool (e.g., `my-tool/`)
+## Skill Structure
 
-2. **Add executable scripts** in a `scripts/` subdirectory:
-   - Make scripts executable (`chmod +x`)
-   - Include a shebang line (`#!/usr/bin/env python3`)
-   - Output JSON to stdout for easy parsing
-   - Write errors to stderr
-
-3. **Create documentation**:
-   - `README.md` - Full documentation with installation, usage, examples
-   - `SKILL.md` (optional) - For AI agent compatibility with YAML frontmatter
-
-4. **Optional additions**:
-   - `references/` - Extended documentation
-   - `assets/` - Templates, config files, etc.
-   - `tests/` - Unit tests for your scripts
-
-## Contributing
-
-Contributions are welcome! To add a new tool:
-
-1. Fork this repository
-2. Create your tool following the structure above
-3. Update this README.md to list your tool
-4. Submit a pull request
-
-## Resources
-
-- [GitHub Repository](https://github.com/tumf/skills)
-- [Report Issues](https://github.com/tumf/skills/issues)
-
-**For AI Agent users**:
-- [skills.sh](https://skills.sh) - Agent Skills Directory  
-- [Agent Skills Specification](https://agentskills.io/)
+Each skill contains:
+- `SKILL.md` - Instructions for the agent
+- `README.md` - Full documentation
+- `scripts/` - Executable scripts (optional)
+- `references/` - Supporting documentation (optional)
 
 ## License
 
-MIT License - See individual skills for their specific licenses.
-
----
-
-💡 Use as standalone tools or integrate with [skills.sh](https://skills.sh) compatible AI agents
+MIT
