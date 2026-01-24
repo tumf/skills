@@ -1,24 +1,6 @@
 ---
 name: firecrawl
-description: |
-  Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API.
-  
-  Features:
-  - **scrape**: Extract content from a single URL (fastest, most reliable)
-  - **search**: Search the web and optionally scrape results
-  - **map**: Discover all URLs on a website before deciding what to scrape
-  - **crawl**: Extract content from multiple related pages
-  - **extract**: LLM-powered structured data extraction with JSON schema
-  - **agent**: Autonomous web data gathering - describe what you need, agent finds it
-  
-  When to use each:
-  - Use `scrape` when you know the exact URL and need its content
-  - Use `search` when you don't know which website has the information
-  - Use `map` to discover URLs before scraping (find specific sections)
-  - Use `crawl` for comprehensive coverage of multiple pages
-  - Use `extract` when you need specific structured data from pages
-  - Use `agent` for complex research tasks requiring multiple sources
-metadata: {"clawdbot":{"requires":{"env":["FIRECRAWL_API_KEY"]},"primaryEnv":"FIRECRAWL_API_KEY"}}
+description: Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API. Provides scripts for single-page scraping (scrape.py), web search (search.py), URL discovery (map.py), multi-page crawling (crawl.py), structured data extraction (extract.py), and autonomous data gathering (agent.py). Use when you need to: (1) Extract content from web pages, (2) Search and scrape the web, (3) Discover URLs on websites, (4) Crawl multiple pages, (5) Extract structured data with JSON schemas, or (6) Autonomously gather data from anywhere on the web. Requires FIRECRAWL_API_KEY environment variable.
 ---
 
 # Firecrawl Web Scraping & Data Extraction
@@ -44,16 +26,16 @@ The most powerful and reliable scraper. Use when you know exactly which page con
 
 ```bash
 # Basic scrape (returns markdown)
-{baseDir}/scripts/scrape.py "https://example.com"
+./scripts/scrape.py "https://example.com"
 
 # Get HTML format
-{baseDir}/scripts/scrape.py "https://example.com" --format html
+./scripts/scrape.py "https://example.com" --format html
 
 # Extract only main content (removes headers, footers, etc.)
-{baseDir}/scripts/scrape.py "https://example.com" --only-main
+./scripts/scrape.py "https://example.com" --only-main
 
 # Combine options
-{baseDir}/scripts/scrape.py "https://docs.example.com/api" --format markdown --only-main
+./scripts/scrape.py "https://docs.example.com/api" --format markdown --only-main
 ```
 
 ### search.py - Web Search
@@ -62,13 +44,13 @@ Search the web when you don't know which website has the information.
 
 ```bash
 # Basic search
-{baseDir}/scripts/search.py "latest AI research papers 2024"
+./scripts/search.py "latest AI research papers 2024"
 
 # Limit results
-{baseDir}/scripts/search.py "Python web scraping tutorials" --limit 5
+./scripts/search.py "Python web scraping tutorials" --limit 5
 
 # Search with scraping (get full content)
-{baseDir}/scripts/search.py "firecrawl documentation" --limit 3
+./scripts/search.py "firecrawl documentation" --limit 3
 ```
 
 ### map.py - URL Discovery
@@ -77,13 +59,13 @@ Discover all URLs on a website. Use before deciding what to scrape.
 
 ```bash
 # Map a website
-{baseDir}/scripts/map.py "https://docs.example.com"
+./scripts/map.py "https://docs.example.com"
 
 # Limit number of URLs
-{baseDir}/scripts/map.py "https://example.com" --limit 100
+./scripts/map.py "https://example.com" --limit 100
 
 # Search within mapped URLs
-{baseDir}/scripts/map.py "https://docs.example.com" --search "authentication"
+./scripts/map.py "https://docs.example.com" --search "authentication"
 ```
 
 ### crawl.py - Multi-Page Crawling
@@ -92,13 +74,13 @@ Extract content from multiple related pages. Warning: can be slow and return lar
 
 ```bash
 # Basic crawl
-{baseDir}/scripts/crawl.py "https://docs.example.com"
+./scripts/crawl.py "https://docs.example.com"
 
 # Limit pages
-{baseDir}/scripts/crawl.py "https://docs.example.com" --limit 20
+./scripts/crawl.py "https://docs.example.com" --limit 20
 
 # Control crawl depth
-{baseDir}/scripts/crawl.py "https://docs.example.com" --limit 10 --depth 2
+./scripts/crawl.py "https://docs.example.com" --limit 10 --depth 2
 ```
 
 ### extract.py - Structured Data Extraction
@@ -107,16 +89,16 @@ Extract specific structured data using LLM capabilities.
 
 ```bash
 # Extract with prompt
-{baseDir}/scripts/extract.py "https://example.com/pricing" \
+./scripts/extract.py "https://example.com/pricing" \
   --prompt "Extract all pricing tiers with their features and prices"
 
 # Extract with JSON schema
-{baseDir}/scripts/extract.py "https://example.com/team" \
+./scripts/extract.py "https://example.com/team" \
   --prompt "Extract team member information" \
   --schema '{"type":"object","properties":{"members":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"role":{"type":"string"},"bio":{"type":"string"}}}}}}'
 
 # Extract from multiple URLs
-{baseDir}/scripts/extract.py "https://example.com/page1" "https://example.com/page2" \
+./scripts/extract.py "https://example.com/page1" "https://example.com/page2" \
   --prompt "Extract product information"
 ```
 
@@ -126,18 +108,18 @@ Autonomous agent that searches, navigates, and extracts data from anywhere on th
 
 ```bash
 # Simple research task
-{baseDir}/scripts/agent.py --prompt "Find the founders of Firecrawl and their backgrounds"
+./scripts/agent.py --prompt "Find the founders of Firecrawl and their backgrounds"
 
 # Complex data gathering
-{baseDir}/scripts/agent.py --prompt "Find the top 5 AI startups founded in 2024 and their funding amounts"
+./scripts/agent.py --prompt "Find the top 5 AI startups founded in 2024 and their funding amounts"
 
 # Focus on specific URLs
-{baseDir}/scripts/agent.py \
+./scripts/agent.py \
   --prompt "Compare the features and pricing" \
   --urls "https://example1.com,https://example2.com"
 
 # With output schema
-{baseDir}/scripts/agent.py \
+./scripts/agent.py \
   --prompt "Find recent tech layoffs" \
   --schema '{"type":"object","properties":{"layoffs":{"type":"array","items":{"type":"object","properties":{"company":{"type":"string"},"count":{"type":"number"},"date":{"type":"string"}}}}}}'
 ```
