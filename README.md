@@ -18,6 +18,12 @@ Web scraping and data extraction toolkit.
 
 [Documentation](./firecrawl/README.md)
 
+### clawdbot-config
+
+Comprehensive Clawdbot configuration and skills system management skill.
+
+[Documentation](./clawdbot-config/README.md)
+
 ---
 
 *More skills coming soon...*
