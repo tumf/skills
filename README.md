@@ -24,6 +24,18 @@ Comprehensive Clawdbot configuration and skills system management skill.
 
 [Documentation](./clawdbot-config/README.md)
 
+### opencode-command-creator
+
+Create custom OpenCode commands with proper structure and configuration.
+
+[Documentation](./opencode-command-creator/README.md)
+
+### opencode-agent-creator
+
+Create specialized OpenCode agents with proper configuration for primary agents and subagents.
+
+[Documentation](./opencode-agent-creator/README.md)
+
 ---
 
 *More skills coming soon...*

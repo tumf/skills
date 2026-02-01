@@ -1,0 +1,139 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  
+  // Example agent configurations
+  "agent": {
+    
+    // Primary agent example
+    "build": {
+      "mode": "primary",
+      "description": "Full development agent with all tools enabled",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "temperature": 0.3,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true
+      }
+    },
+    
+    // Primary agent with restrictions
+    "plan": {
+      "mode": "primary",
+      "description": "Planning and analysis without making changes",
+      "model": "anthropic/claude-haiku-4-20250514",
+      "temperature": 0.2,
+      "tools": {
+        "write": false,
+        "edit": false
+      },
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git log*": "allow"
+        }
+      }
+    },
+    
+    // Subagent example
+    "code-reviewer": {
+      "mode": "subagent",
+      "description": "Reviews code for best practices and potential issues",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "temperature": 0.1,
+      "prompt": "{file:./prompts/code-review.txt}",
+      "tools": {
+        "write": false,
+        "edit": false
+      },
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "git diff": "allow",
+          "git log*": "allow",
+          "grep *": "allow"
+        }
+      }
+    },
+    
+    // Subagent with task permissions
+    "orchestrator": {
+      "mode": "subagent",
+      "description": "Coordinates multiple specialized agents",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "maxSteps": 20,
+      "permission": {
+        "task": {
+          "*": "deny",
+          "code-reviewer": "allow",
+          "docs-writer": "allow",
+          "security-auditor": "ask"
+        }
+      }
+    },
+    
+    // Hidden internal subagent
+    "internal-helper": {
+      "mode": "subagent",
+      "description": "Internal utility agent, not user-facing",
+      "hidden": true,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    },
+    
+    // Reasoning model example (OpenAI)
+    "deep-thinker": {
+      "mode": "subagent",
+      "description": "Uses high reasoning effort for complex problems",
+      "model": "openai/gpt-5",
+      "temperature": 0.1,
+      "maxSteps": 30,
+      // Provider-specific options passed through
+      "reasoningEffort": "high",
+      "textVerbosity": "low"
+    },
+    
+    // Specialized documentation agent
+    "docs": {
+      "mode": "subagent",
+      "description": "Writes and maintains project documentation",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "temperature": 0.4,
+      "tools": {
+        "bash": false
+      }
+    },
+    
+    // Security-focused agent
+    "security": {
+      "mode": "subagent",
+      "description": "Performs security audits and identifies vulnerabilities",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false
+      },
+      "permission": {
+        "bash": {
+          "*": "deny"
+        }
+      }
+    },
+    
+    // Disabled agent example
+    "experimental": {
+      "mode": "subagent",
+      "description": "Experimental agent (currently disabled)",
+      "disable": true,
+      "model": "anthropic/claude-sonnet-4-20250514"
+    }
+  },
+  
+  // Set default agent for new sessions
+  "default_agent": "build"
+}
