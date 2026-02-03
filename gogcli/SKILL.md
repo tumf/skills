@@ -25,27 +25,76 @@ make
 
 ### Initial Setup
 
-1. **Get OAuth2 credentials** from Google Cloud Console:
-   - Create a project: https://console.cloud.google.com/projectcreate
-   - Enable APIs (Gmail, Calendar, Drive, etc.): https://console.cloud.google.com/apis/library
-   - Configure OAuth consent screen: https://console.cloud.google.com/auth/branding
-   - Create OAuth client (Desktop app): https://console.cloud.google.com/auth/clients
-   - Download JSON credentials file
+**Prerequisites:**
+- gcloud CLI installed and authenticated
+- Google account (Gmail or Workspace)
 
-2. **Store credentials**:
+**Automated setup (recommended):**
+
+```bash
+# Run setup script to enable required APIs
+./scripts/setup_gcloud_project.sh PROJECT_ID
+```
+
+**Manual setup:**
+
+1. **Create or select Google Cloud project**:
    ```bash
-   gog auth credentials ~/Downloads/client_secret_....json
+   gcloud projects create PROJECT_ID --name="GoG CLI"
+   gcloud config set project PROJECT_ID
    ```
 
-3. **Authorize account**:
+2. **Enable required APIs**:
+   ```bash
+   # Core services
+   gcloud services enable \
+     gmail.googleapis.com \
+     calendar-json.googleapis.com \
+     drive.googleapis.com \
+     people.googleapis.com \
+     --project=PROJECT_ID
+   ```
+   
+   For all services, see [references/apis.md](references/apis.md).
+
+3. **Configure OAuth consent screen**:
+   - Open: https://console.cloud.google.com/apis/credentials/consent
+   - User Type: "External"
+   - App name: "gog CLI"
+   - Add test users: Your Gmail address
+   
+4. **Create OAuth client**:
+   - Open: https://console.cloud.google.com/apis/credentials/oauthclient
+   - Application type: "Desktop app"
+   - Name: "gog-cli"
+   - Download JSON credentials file
+
+5. **Validate credentials** (optional):
+   ```bash
+   ./scripts/validate_credentials.sh ~/Downloads/client_secret_*.json
+   ```
+
+6. **Store credentials**:
+   ```bash
+   gog auth credentials ~/Downloads/client_secret_*.json
+   ```
+
+7. **Authorize account**:
    ```bash
    gog auth add you@gmail.com
    ```
+   
+   If you see "Access blocked" error:
+   - Ensure your email is added as test user (step 3)
+   - Click "Advanced" → "Go to gog CLI (unsafe)"
+   - See [references/troubleshooting.md](references/troubleshooting.md) for more
 
-4. **Test authentication**:
+8. **Test authentication**:
    ```bash
    export GOG_ACCOUNT=you@gmail.com
    gog gmail labels list
+   gog calendar calendars
+   gog drive ls --max 5
    ```
 
 ## Core Capabilities
@@ -644,7 +693,9 @@ gog sheets get <spreadsheetId> 'Sheet1!A1:B10' --json | \
 
 ## Reference Documentation
 
-For comprehensive command reference with all options and flags, see [references/commands.md](references/commands.md).
+- **Command reference**: [references/commands.md](references/commands.md) - Comprehensive command reference with all options
+- **API and scopes**: [references/apis.md](references/apis.md) - Required APIs and OAuth scopes by service
+- **Troubleshooting**: [references/troubleshooting.md](references/troubleshooting.md) - Common issues and solutions
 
 ## Tips and Best Practices
 
