@@ -36,6 +36,12 @@ Create specialized OpenCode agents with proper configuration for primary agents 
 
 [Documentation](./opencode-agent-creator/README.md)
 
+### slack-rs
+
+Slack Web API automation via the slack-rs CLI (Rust).
+
+[Documentation](./slack-rs/README.md)
+
 ---
 
 *More skills coming soon...*
