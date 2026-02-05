@@ -162,16 +162,115 @@ For more copy/pasteable recipes, see `slack-rs/references/recipes.md`.
 
 Use the convenience commands instead of `api call` for common tasks:
 
+### Basic Usage
+
 ```bash
+# List all conversations
 slack-rs conv list
-slack-rs conv search <pattern>
-slack-rs conv history <channel_id>
+
+# Search by name pattern (glob wildcards supported)
+slack-rs conv search "test*"
+slack-rs conv search "*project*"
+
+# Get channel history
+slack-rs conv history C123456
+```
+
+### Filtering Options
+
+Filter channels by various criteria:
+
+```bash
+# Filter by name pattern
+slack-rs conv list --filter "name:test*"
+slack-rs conv list --filter "name:*project*"
+
+# Filter by membership status
+slack-rs conv list --filter "is_member:true"
+slack-rs conv list --filter "is_member:false"
+
+# Filter by privacy
+slack-rs conv list --filter "is_private:true"
+slack-rs conv list --filter "is_private:false"
+
+# Combine multiple filters
+slack-rs conv list --filter "is_member:true" --filter "is_private:false"
+```
+
+### Output Formats
+
+Choose different output formats:
+
+```bash
+# JSON with envelope (default)
+slack-rs conv list
+
+# Raw Slack API response
+slack-rs conv list --raw
+
+# JSON Lines (one object per line)
+slack-rs conv list --format jsonl
+
+# Table format (human-readable)
+slack-rs conv list --format table
+
+# Tab-separated values
+slack-rs conv list --format tsv
+```
+
+### Sorting
+
+Sort results by different fields:
+
+```bash
+# Sort by name (ascending)
+slack-rs conv list --sort name
+
+# Sort by name (descending)
+slack-rs conv list --sort name --sort-dir desc
+
+# Sort by creation date
+slack-rs conv list --sort created --sort-dir desc
+
+# Sort by member count
+slack-rs conv list --sort num_members --sort-dir desc
+```
+
+### Practical Examples
+
+```bash
+# Find all channels you're a member of, sorted by name
+slack-rs conv list --filter "is_member:true" --sort name
+
+# Find private channels you have access to
+slack-rs conv list --filter "is_private:true" --filter "is_member:true"
+
+# Search for project-related channels
+slack-rs conv search "project*" | jq '.response.channels[] | {id, name}'
+
+# Get channel ID for a specific channel name
+slack-rs conv search "general" | jq -r '.response.channels[0].id'
+
+# List channels with most members
+slack-rs conv list --sort num_members --sort-dir desc --limit 10
+```
+
+### Interactive Mode
+
+For interactive terminal sessions:
+
+```bash
+# Interactively select a channel (outputs channel ID)
+slack-rs conv select
+
+# Interactively select channel and view history
+slack-rs conv history --interactive
 ```
 
 Notes:
 
-- `conv list` supports `--filter`, `--format`, and `--sort` (see `slack-rs conv list --help`).
 - `conv select` and `conv history --interactive` require an interactive terminal (TTY).
+- Filter, format, and sort options may vary by version. Use `slack-rs conv list --help` for details.
 
 ## Safe Defaults for Write Operations
 
