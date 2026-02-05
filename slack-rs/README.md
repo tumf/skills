@@ -2,7 +2,7 @@
 
 Agent skill for Slack Web API automation using the `slack-rs` CLI.
 
-This repository contains the *skill* documentation. The `slack-rs` CLI is a separate project with its own README.
+This directory contains the *skill* documentation. The `slack-rs` CLI is a separate project with its own README.
 
 slack-rs CLI repository:
 
@@ -13,7 +13,7 @@ slack-rs CLI repository:
 - A skill file (`SKILL.md`) that teaches an agent how to use `slack-rs`
 - A set of usage patterns and safety notes (no bundled scripts/binaries)
 
-## Install The Skill
+## Install the skill
 
 Recommended:
 
