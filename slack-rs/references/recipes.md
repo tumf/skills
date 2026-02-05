@@ -2,6 +2,29 @@
 
 All examples assume you already authenticated (see `slack-rs auth status`).
 
+These recipes are written for slack-rs v0.1.32+.
+
+## Token Store (Keyring vs File)
+
+By default, slack-rs uses the OS keyring/keychain.
+
+If your environment does not have a working keyring (CI, containers, headless machines), use the file backend:
+
+```bash
+export SLACKRS_TOKEN_STORE=file
+```
+
+Security note: `~/.config/slack-rs/tokens.json` contains OAuth tokens/secrets. Treat it as a secret.
+
+## Bot vs User Token
+
+If your Slack app has both bot and user tokens, choose the default token type per profile:
+
+```bash
+slack-rs config set my-workspace --token-type user
+slack-rs config set my-workspace --token-type bot
+```
+
 ## Profile Management
 
 List profiles:
@@ -65,7 +88,21 @@ slack-rs config oauth delete my-workspace
 
 ## Identify Channels
 
-List channels (public conversations):
+List conversations (public + private depending on token/scopes):
+
+Preferred (convenience command):
+
+```bash
+slack-rs conv list
+```
+
+Search conversations by name:
+
+```bash
+slack-rs conv search <pattern>
+```
+
+Raw API equivalent:
 
 ```bash
 slack-rs api call conversations.list limit=200
@@ -76,6 +113,14 @@ If you need private channels, ensure your app has appropriate scopes and use the
 ## Read Messages
 
 Fetch recent history for a channel:
+
+Preferred:
+
+```bash
+slack-rs conv history C123456 limit=50
+```
+
+Raw API equivalent:
 
 ```bash
 slack-rs api call conversations.history channel=C123456 limit=50
@@ -88,6 +133,13 @@ Recommended: set write guard explicitly in shells where you might run commands a
 ```bash
 export SLACKCLI_ALLOW_WRITE=true
 slack-rs api call chat.postMessage channel=C123456 text="Hello from slack-rs"
+```
+
+Convenience command:
+
+```bash
+export SLACKCLI_ALLOW_WRITE=true
+slack-rs msg post C123456 "Hello from slack-rs"
 ```
 
 Disable writes by default:
@@ -123,6 +175,23 @@ Search messages (requires `search:read`):
 
 ```bash
 slack-rs api call search.messages query="from:alice has:link" count=20
+```
+
+## Output Format
+
+By default, slack-rs wraps responses in a unified envelope:
+
+```json
+{
+  "meta": {"method": "...", "command": "...", "token_type": "..."},
+  "response": {"ok": true, "...": "..."}
+}
+```
+
+To get the raw Slack Web API response (without the envelope), use `--raw`:
+
+```bash
+slack-rs api call conversations.list --raw
 ```
 
 ## Profile Backup / Migration
