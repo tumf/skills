@@ -41,9 +41,50 @@ Verify:
 slack-rs --version
 ```
 
+Recommended: use slack-rs v0.1.32+.
+
 ## Using The Skill
 
-Once the skill is loaded, the agent will use the `slack-rs` CLI under the hood, typically via `slack-rs api call`.
+Once the skill is loaded, the agent will use the `slack-rs` CLI under the hood.
+
+In slack-rs v0.1.32+, prefer the convenience commands when possible:
+
+```bash
+slack-rs conv list
+slack-rs conv search <pattern>
+slack-rs conv history <channel_id>
+```
+
+For anything else, use the generic method runner:
+
+```bash
+slack-rs api call <method> [params...]
+```
+
+### Token Store (Keyring vs File)
+
+By default, slack-rs uses the OS keyring/keychain. In CI/containers or environments without a working keyring, use the file backend:
+
+```bash
+export SLACKRS_TOKEN_STORE=file
+```
+
+Note: `~/.config/slack-rs/tokens.json` contains OAuth tokens/secrets. Treat it as a secret.
+
+### Bot vs User Token
+
+If your app has both bot and user tokens, select the default token type per profile:
+
+```bash
+slack-rs config set <profile> --token-type user
+slack-rs config set <profile> --token-type bot
+```
+
+Confirm:
+
+```bash
+slack-rs auth status <profile>
+```
 
 Examples:
 
