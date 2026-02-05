@@ -1,7 +1,7 @@
 ---
 name: slack-rs
 description: |
-  Slack Web API automation via the slack-rs CLI (Rust). Use when you need to authenticate to Slack via OAuth (PKCE), manage multiple workspace profiles securely, call arbitrary Slack Web API methods (e.g. chat.postMessage, conversations.list, users.info), or run safe scripted Slack operations from the terminal. Includes profile export/import (encrypted) and write-safety guard via SLACKCLI_ALLOW_WRITE.
+  Slack Web API automation via the slack-rs CLI (Rust). Use when you need to authenticate to Slack via OAuth (PKCE), manage multiple workspace profiles securely, call arbitrary Slack Web API methods (e.g. chat.postMessage, conversations.list, users.info), and run safe scripted Slack operations from the terminal. Includes optional cloudflared-based remote login, encrypted profile export/import, and write-safety guard via SLACKCLI_ALLOW_WRITE.
 ---
 
 # slack-rs - Slack Web API CLI (Rust)
@@ -9,6 +9,12 @@ description: |
 Use `slack-rs` to interact with Slack workspaces using your own OAuth credentials. It supports multiple profiles (workspaces/apps), stores sensitive secrets in the OS keyring, and can call any Slack Web API method.
 
 ## Install
+
+Install from crates.io (recommended):
+
+```bash
+cargo install slack-rs
+```
 
 Build from source:
 
@@ -27,15 +33,20 @@ cargo install --path .
 
 ## OAuth Setup (One-time per Slack App)
 
-Create a Slack app and configure OAuth:
+Create a Slack app and configure OAuth.
+
+Recommended login flow (especially for remote/SSH environments): use `--cloudflared`.
+In this mode, `slack-rs auth login` generates a Slack App Manifest YAML for you (and copies it to clipboard, best effort).
 
 1. Go to https://api.slack.com/apps and create an app.
-2. Under "OAuth & Permissions" add Redirect URL:
+2. Copy your Client ID and Client Secret from "Basic Information" -> "App Credentials".
+3. Either:
 
-   - `http://127.0.0.1:8765/callback`
+   - Use the manifest flow (`--cloudflared`) and paste the generated YAML into Slack, or
+   - Configure OAuth manually (alternative):
 
-3. Add required "User Token Scopes" for your use case.
-4. Copy your Client ID and Client Secret.
+     - Under "OAuth & Permissions", add redirect URL: `http://127.0.0.1:8765/callback`
+     - Add required "User Token Scopes" for your use case
 
 Recommended: store OAuth config per profile (client secret is stored in keyring).
 
@@ -48,6 +59,16 @@ slack-rs config oauth set my-workspace \
 
 If supported by your version, use `--scopes "all"` for a broad preset.
 
+Common scopes:
+
+- `chat:write` - post messages
+- `users:read` - view users
+- `channels:read` - list public channels
+- `search:read` - search workspace content
+- `reactions:write` - add/remove reactions
+
+Full list: https://api.slack.com/scopes
+
 ## Authenticate (Per profile)
 
 ```bash
@@ -55,6 +76,14 @@ slack-rs auth login my-workspace
 slack-rs auth status my-workspace
 slack-rs auth list
 ```
+
+Remote/SSH environments (recommended):
+
+```bash
+slack-rs auth login my-workspace --client-id 123456789012.1234567890123 --cloudflared
+```
+
+Note: the `--ngrok` flag exists in the CLI help, but ngrok tunnel automation is not implemented in v0.1.6.
 
 During login, the CLI opens a browser for OAuth authorization and stores:
 
@@ -106,7 +135,33 @@ slack-rs auth export --profile my-workspace --out backup.enc --yes
 slack-rs auth import --profile my-workspace --in backup.enc
 ```
 
+## Configuration
+
+Only the following environment variables are supported by the current implementation:
+
+- `SLACKCLI_ALLOW_WRITE`: allow/deny write operations (default: allowed)
+- `SLACKRS_KEYRING_PASSWORD`: passphrase for encrypting/decrypting export files (automation)
+- `SLACK_OAUTH_BASE_URL`: custom OAuth base URL (testing/enterprise Slack)
+
 ## Troubleshooting
 
 - Keyring errors: consult the upstream repo's `KEYRING_FIX.md`.
 - Remote environments: use a tunnel (ngrok/cloudflared) and set your profile redirect URI accordingly.
+
+## Useful Commands
+
+Profile management:
+
+```bash
+slack-rs auth list
+slack-rs auth status <profile>
+slack-rs auth rename <old> <new>
+slack-rs auth logout <profile>
+```
+
+OAuth config management:
+
+```bash
+slack-rs config oauth show <profile>
+slack-rs config oauth delete <profile>
+```
