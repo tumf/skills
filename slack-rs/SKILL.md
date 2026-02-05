@@ -8,6 +8,8 @@ description: |
 
 Use `slack-rs` to interact with Slack workspaces using your own OAuth credentials. It supports multiple profiles (workspaces/apps), stores sensitive secrets in the OS keyring, and can call any Slack Web API method.
 
+This skill document is written for slack-rs v0.1.32+.
+
 ## Install
 
 Install from crates.io (recommended):
@@ -83,12 +85,25 @@ Remote/SSH environments (recommended):
 slack-rs auth login my-workspace --client-id 123456789012.1234567890123 --cloudflared
 ```
 
-Note: the `--ngrok` flag exists in the CLI help, but ngrok tunnel automation is not implemented in v0.1.6.
-
 During login, the CLI opens a browser for OAuth authorization and stores:
 
 - Profile metadata in `~/.config/slack-rs/profiles.json`
-- Access tokens and client secrets in the OS keyring
+- Access tokens and client secrets in the OS keyring (default)
+
+### Token Store (Keyring vs File)
+
+slack-rs can store tokens in either:
+
+- `keyring` (default): OS keyring/keychain
+- `file`: `~/.config/slack-rs/tokens.json` (useful for CI, containers, or machines without keyring)
+
+To use the file backend:
+
+```bash
+export SLACKRS_TOKEN_STORE=file
+```
+
+Security note: `~/.config/slack-rs/tokens.json` contains OAuth secrets/tokens. Treat it as a secret.
 
 ## Make API Calls
 
@@ -101,7 +116,62 @@ slack-rs api call conversations.history channel=C123456 limit=50
 slack-rs api call chat.postMessage channel=C123456 text="Hello from slack-rs"
 ```
 
+### Unified Output Envelope
+
+By default, commands output a unified structure:
+
+```json
+{
+  "meta": {
+    "profile_name": "default",
+    "method": "conversations.list",
+    "command": "api call",
+    "token_type": "user"
+  },
+  "response": {
+    "ok": true,
+    "channels": []
+  }
+}
+```
+
+To get the raw Slack Web API response (without the envelope), use `--raw`:
+
+```bash
+slack-rs api call conversations.list --raw
+```
+
+### Choose Bot vs User Token
+
+If your Slack app has both a bot token and a user token, set the default token type per profile:
+
+```bash
+slack-rs config set my-workspace --token-type user
+slack-rs config set my-workspace --token-type bot
+```
+
+Confirm with:
+
+```bash
+slack-rs auth status my-workspace
+```
+
 For more copy/pasteable recipes, see `slack-rs/references/recipes.md`.
+
+## Conversation Helpers
+
+Use the convenience commands instead of `api call` for common tasks:
+
+```bash
+slack-rs conv list
+slack-rs conv search <pattern>
+slack-rs conv history <channel_id>
+```
+
+Notes:
+
+- `conv list` supports `--filter`, `--format`, and `--sort` (see `slack-rs conv list --help`).
+- `conv select` and `conv history --interactive` require an interactive terminal (TTY).
 
 ## Safe Defaults for Write Operations
 
@@ -137,9 +207,10 @@ slack-rs auth import --profile my-workspace --in backup.enc
 
 ## Configuration
 
-Only the following environment variables are supported by the current implementation:
+Common environment variables:
 
 - `SLACKCLI_ALLOW_WRITE`: allow/deny write operations (default: allowed)
+- `SLACKRS_TOKEN_STORE`: token store backend (`keyring` (default) or `file`)
 - `SLACKRS_KEYRING_PASSWORD`: passphrase for encrypting/decrypting export files (automation)
 - `SLACK_OAUTH_BASE_URL`: custom OAuth base URL (testing/enterprise Slack)
 
@@ -147,6 +218,22 @@ Only the following environment variables are supported by the current implementa
 
 - Keyring errors: consult the upstream repo's `KEYRING_FIX.md`.
 - Remote environments: use a tunnel (ngrok/cloudflared) and set your profile redirect URI accordingly.
+
+### "Tokens Available: None" but tokens exist
+
+If `auth status` reports that tokens exist in the file backend, set:
+
+```bash
+export SLACKRS_TOKEN_STORE=file
+```
+
+### Private channels are missing
+
+Private channels typically require a user token. Ensure:
+
+1. `slack-rs config set <profile> --token-type user`
+2. Your Slack app has user scopes (`groups:read`, `groups:history` / `conversations:read`, etc.)
+3. You are using the correct token store (`keyring` vs `file`)
 
 ## Useful Commands
 
