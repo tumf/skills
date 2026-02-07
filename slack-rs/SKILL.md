@@ -183,27 +183,42 @@ Example output (`slack-rs schema --command msg.post --output json-schema`):
 ```json
 {
   "schemaVersion": 1,
-  "type": "SchemaResponse",
+  "type": "schema",
   "ok": true,
   "command": "msg.post",
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "MsgPostCommandOutput",
     "type": "object",
     "properties": {
-      "ok": {"type": "boolean"},
+      "schemaVersion": {
+        "type": "integer",
+        "description": "Schema version number"
+      },
+      "type": {
+        "type": "string",
+        "description": "Response type identifier"
+      },
+      "ok": {
+        "type": "boolean",
+        "description": "Indicates if the operation was successful"
+      },
+      "response": {
+        "type": "object",
+        "description": "Slack API response data"
+      },
       "meta": {
         "type": "object",
+        "description": "Metadata about the request and profile",
         "properties": {
-          "profile_name": {"type": "string"},
+          "profile": {"type": "string"},
+          "team_id": {"type": "string"},
+          "user_id": {"type": "string"},
           "method": {"type": "string"},
-          "command": {"type": "string"},
-          "token_type": {"type": "string"}
+          "command": {"type": "string"}
         }
-      },
-      "response": {"type": "object"}
+      }
     },
-    "required": ["ok", "response"]
+    "required": ["schemaVersion", "type", "ok"]
   }
 }
 ```
