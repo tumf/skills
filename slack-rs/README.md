@@ -35,10 +35,11 @@ Alternative: load the skill file directly in your agent config:
 
 You must install the `slack-rs` CLI on the machine where the agent runs.
 
-Verify:
+This skill assumes recent versions of `slack-rs` (v0.1.40+). Verify your installation:
 
 ```bash
 slack-rs --version
+slack-rs --help  # Check available commands and flags
 ```
 
 ## Using The Skill

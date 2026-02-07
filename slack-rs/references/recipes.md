@@ -34,7 +34,7 @@ Rename a profile:
 slack-rs auth rename old-name new-name
 ```
 
-Logout (removes profile + deletes credentials from keyring):
+Logout (removes profile + deletes stored credentials):
 
 ```bash
 slack-rs auth logout my-workspace
@@ -48,7 +48,7 @@ Show saved OAuth config:
 slack-rs config oauth show my-workspace
 ```
 
-Set OAuth config (client secret is stored in keyring):
+Set OAuth config (client secret is stored securely in file storage):
 
 ```bash
 slack-rs config oauth set my-workspace \
@@ -143,10 +143,4 @@ slack-rs auth export --all --out all-profiles.enc --passphrase-prompt
 slack-rs auth import --all --in all-profiles.enc --passphrase-prompt
 ```
 
-Non-interactive automation:
-
-```bash
-export SLACKRS_KEYRING_PASSWORD="strong-passphrase"
-slack-rs auth export --profile my-workspace --out backup.enc --yes
-slack-rs auth import --profile my-workspace --in backup.enc
-```
+For non-interactive automation, refer to `slack-rs auth export --help` and `slack-rs auth import --help`.
