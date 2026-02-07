@@ -2,18 +2,16 @@
 
 Agent skill for Slack Web API automation using the `slack-rs` CLI.
 
-This directory contains the *skill* documentation. The `slack-rs` CLI is a separate project with its own README.
-
-slack-rs CLI repository:
+This directory contains the skill documentation only (no bundled scripts/binaries). The `slack-rs` CLI is a separate project:
 
 - https://github.com/tumf/slack-rs
 
 ## What You Get
 
-- A skill file (`SKILL.md`) that teaches an agent how to use `slack-rs`
-- A set of usage patterns and safety notes (no bundled scripts/binaries)
+- `slack-rs/SKILL.md`: agent instructions for using `slack-rs`
+- `slack-rs/references/recipes.md`: copy/paste recipes
 
-## Install the skill
+## Install The Skill
 
 Recommended:
 
@@ -25,37 +23,70 @@ Alternative: load the skill file directly in your agent config:
 
 ```jsonc
 {
-  "instructions": [
-    "path/to/slack-rs/SKILL.md"
-  ]
+  "instructions": ["path/to/slack-rs/SKILL.md"]
 }
 ```
 
 ## Prerequisites
 
-You must install the `slack-rs` CLI on the machine where the agent runs.
+Install the `slack-rs` CLI on the machine where the agent runs.
 
-This skill assumes recent versions of `slack-rs` (v0.1.40+). Verify your installation:
+This skill assumes recent versions of `slack-rs` (v0.1.40+):
 
 ```bash
 slack-rs --version
-slack-rs --help  # Check available commands and flags
+slack-rs --help
 ```
 
-Tip: `slack-rs` supports machine-readable introspection via `commands --json`, `<cmd> --help --json`, and `schema --command <cmd> --output json-schema`.
+Tip: `slack-rs` supports machine-readable introspection:
+
+```bash
+slack-rs commands --json
+slack-rs conv list --help --json
+slack-rs schema --command msg.post --output json-schema
+```
 
 ## Using The Skill
 
-Once the skill is loaded, the agent will use the `slack-rs` CLI under the hood, typically via `slack-rs api call`.
+Once the skill is loaded, the agent will run `slack-rs` commands directly.
 
-Examples:
+Prefer convenience commands when possible:
 
-```text
-List public channels in my workspace
-Search for messages containing "deployment" in #engineering
-Post "build is complete" to #general
+```bash
+slack-rs conv list
+slack-rs conv search <pattern>
+slack-rs conv history <channel_id>
+
+slack-rs msg post <channel_id> "Hello"
 ```
 
-More recipes:
+For anything else, use the generic method runner:
 
-- `slack-rs/references/recipes.md`
+```bash
+slack-rs api call <method> [params...]
+```
+
+## Credentials And Storage
+
+`slack-rs` stores profiles, OAuth config, and tokens under `~/.config/slack-rs/`. Treat this directory as a secret.
+
+For backup/migration, refer to:
+
+```bash
+slack-rs auth export --help
+slack-rs auth import --help
+```
+
+## Write Safety Guard
+
+Many Slack methods write data (posting, updating, deleting, reactions). In automation shells, set:
+
+```bash
+export SLACKCLI_ALLOW_WRITE=false
+```
+
+Enable writes only when you intend to change Slack:
+
+```bash
+export SLACKCLI_ALLOW_WRITE=true
+```

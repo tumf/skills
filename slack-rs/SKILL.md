@@ -1,12 +1,12 @@
 ---
 name: slack-rs
 description: |
-  Slack Web API automation via the slack-rs CLI (Rust). Use when you need to authenticate to Slack via OAuth (PKCE), manage multiple workspace profiles securely, call arbitrary Slack Web API methods (e.g. chat.postMessage, conversations.list, users.info), and run safe scripted Slack operations from the terminal. Includes optional cloudflared-based remote login, encrypted profile export/import, and write-safety guard via SLACKCLI_ALLOW_WRITE. Credentials stored in file-based storage (~/.config/slack-rs/).
+  Slack Web API automation via the slack-rs CLI (Rust). Use when you need to authenticate to Slack via OAuth (PKCE), manage multiple workspace profiles, call arbitrary Slack Web API methods (e.g. chat.postMessage, conversations.list, users.info), and run safe scripted Slack operations from the terminal. Includes tunnel-assisted remote login (see auth login --help), encrypted profile export/import, and a write-safety guard via SLACKCLI_ALLOW_WRITE. Credentials are stored in file-based storage under ~/.config/slack-rs/.
 ---
 
 # slack-rs - Slack Web API CLI (Rust)
 
-Use `slack-rs` to interact with Slack workspaces using your own OAuth credentials. It supports multiple profiles (workspaces/apps), stores credentials securely in file-based storage (~/.config/slack-rs/), and can call any Slack Web API method.
+Use `slack-rs` to interact with Slack workspaces using your own OAuth credentials. It supports multiple profiles (workspaces/apps), stores credentials in file-based storage under `~/.config/slack-rs/`, and can call any Slack Web API method.
 
 ## Install
 
@@ -88,7 +88,9 @@ Note: Check `slack-rs auth login --help` for current tunnel support (e.g., `--cl
 During login, the CLI opens a browser for OAuth authorization and stores:
 
 - Profile metadata in `~/.config/slack-rs/profiles.json`
-- Access tokens and client secrets in `~/.config/slack-rs/tokens.json` (file permissions 0600)
+- OAuth config and tokens in files under `~/.config/slack-rs/` (treat as secrets)
+
+Security note: `~/.config/slack-rs/` contains OAuth credentials (client secrets and access tokens). Treat it as sensitive.
 
 ## Make API Calls
 
@@ -99,6 +101,46 @@ slack-rs api call users.info user=U123456
 slack-rs api call conversations.list limit=200
 slack-rs api call conversations.history channel=C123456 limit=50
 slack-rs api call chat.postMessage channel=C123456 text="Hello from slack-rs"
+```
+
+### Unified Output Envelope
+
+By default, commands output a unified structure:
+
+```json
+{
+  "meta": {
+    "profile_name": "default",
+    "method": "conversations.list",
+    "command": "api call",
+    "token_type": "user"
+  },
+  "response": {
+    "ok": true,
+    "channels": []
+  }
+}
+```
+
+To get the raw Slack Web API response (without the envelope), use `--raw`:
+
+```bash
+slack-rs api call conversations.list --raw
+```
+
+### Choose Bot vs User Token
+
+If your Slack app has both a bot token and a user token, set the default token type per profile:
+
+```bash
+slack-rs config set my-workspace --token-type user
+slack-rs config set my-workspace --token-type bot
+```
+
+Confirm with:
+
+```bash
+slack-rs auth status my-workspace
 ```
 
 For more copy/pasteable recipes, see `slack-rs/references/recipes.md`.
@@ -118,67 +160,50 @@ slack-rs schema --command conv.list --output json-schema
 slack-rs schema --command api.call --output json-schema
 ```
 
+## Conversation Helpers
+
+Use the convenience commands instead of `api call` for common tasks:
+
+```bash
+slack-rs conv list
+slack-rs conv search <pattern>
+slack-rs conv history <channel_id>
+```
+
 Notes:
 
 - Command names accept both dot and space formats (e.g. `conv.list` == `conv list`, `msg.post` == `msg post`).
 - `schema` describes the default enveloped JSON output; it does not describe `--raw` output.
 - `meta` is a baseline envelope and not exhaustive; additional fields may be added over time.
+- `conv list` supports `--filter`, `--format`, and `--sort` (see `slack-rs conv list --help`).
+- `conv select` and `conv history --interactive` require an interactive terminal (TTY).
 
 Example output (`slack-rs schema --command msg.post --output json-schema`):
 
 ```json
 {
   "schemaVersion": 1,
-  "type": "schema",
+  "type": "SchemaResponse",
   "ok": true,
   "command": "msg.post",
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "MsgPostCommandOutput",
     "type": "object",
     "properties": {
-      "schemaVersion": {
-        "type": "integer",
-        "description": "Schema version number"
-      },
-      "type": {
-        "type": "string",
-        "description": "Response type identifier"
-      },
-      "ok": {
-        "type": "boolean",
-        "description": "Indicates if the operation was successful"
-      },
-      "response": {
-        "type": "object",
-        "description": "Slack API response data"
-      },
+      "ok": {"type": "boolean"},
       "meta": {
         "type": "object",
-        "description": "Metadata about the request and profile",
         "properties": {
-          "profile": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "user_id": {
-            "type": "string"
-          },
-          "method": {
-            "type": "string"
-          },
-          "command": {
-            "type": "string"
-          }
+          "profile_name": {"type": "string"},
+          "method": {"type": "string"},
+          "command": {"type": "string"},
+          "token_type": {"type": "string"}
         }
-      }
+      },
+      "response": {"type": "object"}
     },
-    "required": [
-      "schemaVersion",
-      "type",
-      "ok"
-    ]
+    "required": ["ok", "response"]
   }
 }
 ```
@@ -211,7 +236,7 @@ For non-interactive automation options, refer to `slack-rs auth export --help` a
 
 ## Configuration
 
-Only the following environment variables are supported by the current implementation:
+Common environment variables:
 
 - `SLACKCLI_ALLOW_WRITE`: allow/deny write operations (default: allowed)
 - `SLACK_OAUTH_BASE_URL`: custom OAuth base URL (testing/enterprise Slack)
@@ -220,8 +245,14 @@ For export/import passphrase options, use `--passphrase-prompt` or see `slack-rs
 
 ## Troubleshooting
 
-- Keyring errors: consult the upstream repo's `KEYRING_FIX.md`.
 - Remote environments: use a tunnel (ngrok/cloudflared) and set your profile redirect URI accordingly.
+
+### Private channels are missing
+
+Private channels typically require a user token. Ensure:
+
+1. `slack-rs config set <profile> --token-type user`
+2. Your Slack app has user scopes (`groups:read`, `groups:history` / `conversations:read`, etc.)
 
 ## Useful Commands
 
