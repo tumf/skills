@@ -103,6 +103,86 @@ slack-rs api call chat.postMessage channel=C123456 text="Hello from slack-rs"
 
 For more copy/pasteable recipes, see `slack-rs/references/recipes.md`.
 
+## Introspection (Commands / Help / Schemas)
+
+Use these commands to discover what the CLI can do and how to call it (machine-readable):
+
+```bash
+slack-rs commands --json
+
+slack-rs conv list --help --json
+slack-rs msg post --help --json
+
+slack-rs schema --command msg.post --output json-schema
+slack-rs schema --command conv.list --output json-schema
+slack-rs schema --command api.call --output json-schema
+```
+
+Notes:
+
+- Command names accept both dot and space formats (e.g. `conv.list` == `conv list`, `msg.post` == `msg post`).
+- `schema` describes the default enveloped JSON output; it does not describe `--raw` output.
+- `meta` is a baseline envelope and not exhaustive; additional fields may be added over time.
+
+Example output (`slack-rs schema --command msg.post --output json-schema`):
+
+```json
+{
+  "schemaVersion": 1,
+  "type": "schema",
+  "ok": true,
+  "command": "msg.post",
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "schemaVersion": {
+        "type": "integer",
+        "description": "Schema version number"
+      },
+      "type": {
+        "type": "string",
+        "description": "Response type identifier"
+      },
+      "ok": {
+        "type": "boolean",
+        "description": "Indicates if the operation was successful"
+      },
+      "response": {
+        "type": "object",
+        "description": "Slack API response data"
+      },
+      "meta": {
+        "type": "object",
+        "description": "Metadata about the request and profile",
+        "properties": {
+          "profile": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "required": [
+      "schemaVersion",
+      "type",
+      "ok"
+    ]
+  }
+}
+```
+
 ## Safe Defaults for Write Operations
 
 Many Slack methods are write operations (posting, updating, deleting, reactions). Use the guard in environments where writes are risky:

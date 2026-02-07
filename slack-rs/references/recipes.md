@@ -2,6 +2,18 @@
 
 All examples assume you already authenticated (see `slack-rs auth status`).
 
+## Introspection
+
+Machine-readable discovery:
+
+```bash
+slack-rs commands --json
+
+slack-rs <cmd> --help --json
+
+slack-rs schema --command msg.post --output json-schema
+```
+
 ## Profile Management
 
 List profiles:

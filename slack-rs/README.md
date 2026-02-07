@@ -42,6 +42,8 @@ slack-rs --version
 slack-rs --help  # Check available commands and flags
 ```
 
+Tip: `slack-rs` supports machine-readable introspection via `commands --json`, `<cmd> --help --json`, and `schema --command <cmd> --output json-schema`.
+
 ## Using The Skill
 
 Once the skill is loaded, the agent will use the `slack-rs` CLI under the hood, typically via `slack-rs api call`.
