@@ -42,6 +42,12 @@ Slack Web API automation via the slack-rs CLI (Rust).
 
 [Documentation](./slack-rs/README.md)
 
+### rust-cli
+
+General guidance and templates for building Rust CLI programs (clap/anyhow/tracing/serde_json), including prek-based git hooks.
+
+[Documentation](./rust-cli/README.md)
+
 ---
 
 *More skills coming soon...*
