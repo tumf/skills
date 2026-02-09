@@ -52,6 +52,45 @@ When enforcing this layout, prefer `directories::BaseDirs` (for `home_dir()`) + 
 
 - When changing filesystem/env-path/config discovery code, always include `windows-latest` in a CI matrix to catch issues early.
 
+## Flaky tests: time-based cutoffs (SystemTime + second precision)
+
+If you store timestamps as Unix seconds (`i64`) and compute a cleanup cutoff using `SystemTime::now()`, tests can become flaky across platforms.
+This often passes on Linux/macOS and fails on Windows due to timing/resolution differences.
+
+Typical failure mode (SQLite example):
+
+- `record()` inserts `created_at = now_secs()` (e.g. `1707408142`).
+- a moment later, `cleanup_old_entries(0)` computes `cutoff = now_secs()` (e.g. `1707408143`).
+- SQL uses `WHERE created_at < cutoff` which matches the freshly inserted row (`1707408142 < 1707408143`).
+
+Recommended fixes (pick one that matches intended semantics):
+
+- **Tests:** avoid boundary conditions; use a large margin (e.g. `cleanup_old_entries(1)` instead of `0`), and optionally insert a small sleep between operations to avoid same-second edges.
+- **Implementation:** define `days <= 0` semantics explicitly (often a no-op), or inject a clock so tests can be deterministic. If you keep second-precision storage, be careful with `<` vs `<=` and how you define "older than N days".
+
+Example test adjustment (stable across platforms):
+
+```rust
+#[test]
+fn test_cleanup_old_entries() {
+    let (ledger, _temp) = create_test_ledger();
+
+    ledger
+        .record("test-1", "hash-1", "tweet-1", "success")
+        .unwrap();
+
+    // Ensure the cutoff is not computed in the exact same instant.
+    std::thread::sleep(std::time::Duration::from_millis(10));
+
+    // Use a safe margin: a fresh entry should not be deleted.
+    let deleted = ledger.cleanup_old_entries(1).unwrap();
+    assert_eq!(deleted, 0);
+
+    let entry = ledger.lookup("test-1").unwrap();
+    assert!(entry.is_some());
+}
+```
+
 ## Companion Skill: agentic-cli-design
 
 If this CLI will be operated by AI agents and/or automation, also consult the `agentic-cli-design` skill.
