@@ -52,7 +52,70 @@ When enforcing this layout, prefer `directories::BaseDirs` (for `home_dir()`) + 
 
 - When changing filesystem/env-path/config discovery code, always include `windows-latest` in a CI matrix to catch issues early.
 
-## Flaky tests: time-based cutoffs (SystemTime + second precision)
+## Cross-platform testing pitfalls
+
+### Home directory override (Windows limitation)
+
+On Windows, `directories::BaseDirs` calls Windows API (`SHGetKnownFolderPath`) directly; setting `HOME` or `USERPROFILE` environment variables does not override the returned path. This differs from Unix/Linux/macOS, where `directories` typically reads `$HOME`.
+
+| Platform | Behavior | Override via env? |
+|----------|----------|-------------------|
+| Unix/Linux/macOS | Reads `$HOME` environment variable | ✅ Yes |
+| Windows | Calls Win32 API (`SHGetKnownFolderPath`) | ❌ No |
+
+**Test design patterns:**
+
+```rust
+// Pattern 1: Unix-only test (recommended for HOME override)
+#[test]
+#[cfg(not(target_os = "windows"))]
+fn test_home_override() {
+    let temp = TempDir::new().unwrap();
+    env::set_var("HOME", temp.path());
+    // Test code that uses directories::BaseDirs
+}
+
+// Pattern 2: Platform-specific logic
+#[test]
+fn test_cross_platform_home() {
+    #[cfg(unix)]
+    {
+        env::set_var("HOME", "/tmp/test");
+        // Unix-specific test
+    }
+    
+    #[cfg(windows)]
+    {
+        // Windows: use explicit paths or dependency injection
+        let test_dir = PathBuf::from("C:\\temp\\test");
+        // Windows-specific test
+    }
+}
+
+// Pattern 3: Dependency injection (best for portability)
+fn install_skill_to_path(base_dir: &Path, skill_name: &str) {
+    // Accept path directly, avoid BaseDirs in implementation
+}
+
+#[test]
+fn test_install_with_explicit_path() {
+    let temp = TempDir::new().unwrap();
+    install_skill_to_path(temp.path(), "my-skill");
+    // Portable across all platforms
+}
+```
+
+**Other common cases with similar issues:**
+
+| Function | Platform behavior | Override via env? |
+|----------|-------------------|-------------------|
+| `std::env::temp_dir()` | Calls OS API | ❌ No |
+| `std::env::current_exe()` | Calls OS API | ❌ No |
+| `directories::ProjectDirs` (config/cache) | Windows: API, Unix: XDG vars | Partial (Unix only) |
+
+**Recommendation:** Design functions to accept explicit paths where testability matters; use `BaseDirs` / `ProjectDirs` only in top-level CLI entrypoint or well-isolated modules.
+
+### Flaky tests: time-based cutoffs (SystemTime + second precision)
 
 If you store timestamps as Unix seconds (`i64`) and compute a cleanup cutoff using `SystemTime::now()`, tests can become flaky across platforms.
 This often passes on Linux/macOS and fails on Windows due to timing/resolution differences.
@@ -90,6 +153,16 @@ fn test_cleanup_old_entries() {
     assert!(entry.is_some());
 }
 ```
+
+### Other common cross-platform differences
+
+| Feature | Unix/macOS | Windows | Testing approach |
+|---------|------------|---------|-----------------|
+| Path separator | `/` | `\` | Always use `std::path::Path` |
+| Line endings | `\n` | `\r\n` | Explicitly specify in tests or use `.replace()` |
+| Executable extension | none | `.exe` | Use `env!("CARGO_BIN_EXE_<name>")` |
+| Case sensitivity | Yes | No | Test with varied cases on Windows |
+| Temp directory | `/tmp` or `/var/tmp` | `%TEMP%` | Use `std::env::temp_dir()` or `tempfile` crate |
 
 ## Companion Skill: agentic-cli-design
 
