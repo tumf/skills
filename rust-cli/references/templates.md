@@ -290,3 +290,147 @@ Notes:
 ```bash
 prek install --install-hooks --hook-type pre-commit --hook-type pre-push
 ```
+
+## Makefile (common Rust CLI targets)
+
+This is a copy/paste Makefile you can adapt per-repo.
+It is safe-by-default for publish: `make publish` requires `PUBLISH=1`.
+
+```makefile
+# Makefile for a Rust CLI project
+
+.PHONY: build help install release test clean fmt lint check setup pre-commit pre-commit-hooks \
+        bump-patch bump-minor bump-major publish publish-dry-run
+
+# Default target
+build:
+	@echo "Building debug version..."
+	cargo build
+
+help:
+	@echo "Available targets:"
+	@echo "  make (default)         - Build debug version"
+	@echo "  make build             - Build debug version"
+	@echo "  make install           - Install the binary to ~/.cargo/bin"
+	@echo "  make release           - Build optimized release version"
+	@echo "  make test              - Run all tests"
+	@echo "  make clean             - Clean build artifacts"
+	@echo "  make fmt               - Format code with rustfmt"
+	@echo "  make lint              - Run clippy linter"
+	@echo "  make check             - Run fmt, lint, and test"
+	@echo "  make setup             - Setup development environment"
+	@echo "  make pre-commit         - Run prek on all files"
+	@echo "  make pre-commit-hooks  - Install git pre-commit hooks"
+	@echo "  make bump-patch        - Bump patch version + tag (no publish)"
+	@echo "  make bump-minor        - Bump minor version + tag (no publish)"
+	@echo "  make bump-major        - Bump major version + tag (no publish)"
+	@echo "  make publish-dry-run    - Verify publish packaging (no upload)"
+	@echo "  make publish           - Publish to crates.io (requires PUBLISH=1)"
+
+install:
+	@echo "Installing from local checkout..."
+	cargo install --path .
+
+release:
+	@echo "Building release version..."
+	cargo build --release
+
+test:
+	@echo "Running tests..."
+	cargo test --verbose
+
+clean:
+	@echo "Cleaning build artifacts..."
+	cargo clean
+
+fmt:
+	@echo "Formatting code..."
+	cargo fmt
+
+lint:
+	@echo "Running clippy..."
+	cargo clippy -- -D warnings
+
+check: fmt lint test
+	@echo "All checks passed!"
+
+setup: pre-commit-hooks
+	@echo "Setting up development environment..."
+	@command -v rustfmt >/dev/null 2>&1 || rustup component add rustfmt
+	@command -v clippy >/dev/null 2>&1 || rustup component add clippy
+	@command -v cargo-release >/dev/null 2>&1 || cargo install cargo-release
+	@echo "Development environment setup complete!"
+
+pre-commit:
+	@set -e; \
+	if command -v prek >/dev/null 2>&1; then PREK=prek; \
+	elif [ -x "$$HOME/.local/bin/prek" ]; then PREK="$$HOME/.local/bin/prek"; \
+	else \
+		echo "prek not found. Run 'make pre-commit-hooks' to install it."; \
+		exit 1; \
+	fi; \
+	"$$PREK" run --all-files
+
+pre-commit-hooks:
+	@set -e; \
+	echo "Installing pre-commit hooks (prek)..."; \
+	if command -v prek >/dev/null 2>&1; then PREK=prek; \
+	elif [ -x "$$HOME/.local/bin/prek" ]; then PREK="$$HOME/.local/bin/prek"; \
+	else \
+		echo "prek not found. Installing to $$HOME/.local/bin..."; \
+		mkdir -p "$$HOME/.local/bin"; \
+		curl -LsSf https://github.com/j178/prek/releases/latest/download/prek-installer.sh | sh; \
+		PREK="$$HOME/.local/bin/prek"; \
+	fi; \
+	"$$PREK" install --overwrite --hook-type pre-commit; \
+	echo "Pre-commit hook installed. Run 'make pre-commit' to verify."
+
+# Version bumps + tag creation (no publish)
+bump-patch:
+	@echo "Bumping patch version (no publish)..."
+	@cargo release patch --execute --no-confirm --no-publish
+
+bump-minor:
+	@echo "Bumping minor version (no publish)..."
+	@cargo release minor --execute --no-confirm --no-publish
+
+bump-major:
+	@echo "Bumping major version (no publish)..."
+	@cargo release major --execute --no-confirm --no-publish
+
+publish-dry-run:
+	@echo "Running cargo publish --dry-run..."
+	cargo publish --dry-run
+
+publish:
+	@set -e; \
+	if [ "$(PUBLISH)" != "1" ]; then \
+		echo "Refusing to publish. Re-run with: make publish PUBLISH=1"; \
+		exit 1; \
+	fi; \
+	echo "Publishing to crates.io..."; \
+	cargo publish
+```
+
+## .wt/setup (repo bootstrap script)
+
+Create an executable script at `.wt/setup` and keep it as the one stable entrypoint for bootstrapping.
+This should be safe to run repeatedly and should avoid interactive prompts.
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v make >/dev/null 2>&1; then
+  echo "error: make not found" >&2
+  exit 1
+fi
+
+make setup
+```
+
+Make it executable:
+
+```bash
+chmod +x .wt/setup
+```

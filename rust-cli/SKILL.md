@@ -184,6 +184,81 @@ Borrow these concepts: machine-readable output, non-interactive operation, idemp
    - stderr contains diagnostics (but not required for correctness)
 6) Automate quality gates with git hooks. `prek` is a good approach for fast, compatible pre-commit/pre-push hooks.
 
+## Repo bootstrap entrypoint (.wt/setup)
+
+Prefer a single, predictable bootstrap command for local dev and automation.
+
+- Add an executable script at `.wt/setup`.
+- The script should run `make setup` (and nothing surprising).
+- Keep it idempotent and non-interactive.
+
+This gives humans and agents a stable entrypoint:
+
+```bash
+./.wt/setup
+```
+
+## Release workflow (cargo-release)
+
+Use `cargo-release` to bump versions, create git tags, and (optionally) publish to crates.io.
+
+Install:
+
+```bash
+cargo install cargo-release
+```
+
+### Bump version + tag (no publish)
+
+This is a safe default when you want to control publishing manually:
+
+```bash
+# Patch: 0.1.0 -> 0.1.1
+cargo release patch --execute --no-confirm --no-publish
+
+# Minor: 0.1.0 -> 0.2.0
+cargo release minor --execute --no-confirm --no-publish
+
+# Major: 0.1.0 -> 1.0.0
+cargo release major --execute --no-confirm --no-publish
+```
+
+Notes:
+
+- `--no-confirm` makes the command non-interactive (agent/CI friendly). Use without it for a safety prompt.
+- `--no-publish` keeps crates.io publishing as an explicit step.
+
+After bumping/tagging, publish explicitly:
+
+```bash
+cargo publish
+```
+
+### Publish preflight checks
+
+Before publishing (especially in automation), prefer these checks:
+
+```bash
+cargo fmt
+cargo clippy -- -D warnings
+cargo test
+
+# Ensures the package can be built as it will be uploaded
+cargo publish --dry-run
+```
+
+### Optional: publish from a tag
+
+If you need to publish an already-created tag:
+
+```bash
+git checkout <tag>
+cargo publish
+```
+
+Recommendation: keep the release workflow simple.
+In most repos, publishing from a clean working tree on the release commit (the one that was tagged) is sufficient.
+
 ## Templates
 
 - Crate selection: `rust-cli/references/crates.md`

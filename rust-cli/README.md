@@ -13,6 +13,8 @@ Build maintainable Rust CLI programs with a consistent, automation-friendly stru
 - choosing a unique binary/command name (avoid crates.io and common system collisions)
 - integration tests for the CLI binary
 - git hooks with `prek` (pre-commit / pre-push)
+- a predictable repo bootstrap entrypoint (`./.wt/setup` -> `make setup`)
+- release workflow with `cargo-release` (bump patch/minor/major) and publishing to crates.io
 - XDG filesystem layout: config in `~/.config/{app_name}`, non-git-managed data in `~/.local/share/{app_name}`
 
 ## Example Trigger Phrases
