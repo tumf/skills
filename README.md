@@ -54,6 +54,12 @@ General guidance and templates for building Rust CLI programs (clap/anyhow/traci
 
 [Documentation](./rust-cli/README.md)
 
+### product-improvement-proposal
+
+Propose high-leverage product/UX improvements grounded in repo evidence, with prioritized MVP plans.
+
+[Documentation](./product-improvement-proposal/README.md)
+
 ---
 
 *More skills coming soon...*
