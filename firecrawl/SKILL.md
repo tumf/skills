@@ -28,22 +28,24 @@ export FIRECRAWL_API_KEY="your-api-key-here"
 
 ## Scripts
 
+Note: Set `SKILL_ROOT` to this skill's base directory. Reference bundled scripts as `python3 "$SKILL_ROOT/scripts/<script>.py" ...` (not relative paths from the current working directory).
+
 ### scrape.py - Single Page Scraping
 
 The most powerful and reliable scraper. Use when you know exactly which page contains the information.
 
 ```bash
 # Basic scrape (returns markdown)
-./scripts/scrape.py "https://example.com"
+python3 "$SKILL_ROOT/scripts/scrape.py" "https://example.com"
 
 # Get HTML format
-./scripts/scrape.py "https://example.com" --format html
+python3 "$SKILL_ROOT/scripts/scrape.py" "https://example.com" --format html
 
 # Extract only main content (removes headers, footers, etc.)
-./scripts/scrape.py "https://example.com" --only-main
+python3 "$SKILL_ROOT/scripts/scrape.py" "https://example.com" --only-main
 
 # Combine options
-./scripts/scrape.py "https://docs.example.com/api" --format markdown --only-main
+python3 "$SKILL_ROOT/scripts/scrape.py" "https://docs.example.com/api" --format markdown --only-main
 ```
 
 ### search.py - Web Search
@@ -52,13 +54,13 @@ Search the web when you don't know which website has the information.
 
 ```bash
 # Basic search
-./scripts/search.py "latest AI research papers 2024"
+python3 "$SKILL_ROOT/scripts/search.py" "latest AI research papers 2024"
 
 # Limit results
-./scripts/search.py "Python web scraping tutorials" --limit 5
+python3 "$SKILL_ROOT/scripts/search.py" "Python web scraping tutorials" --limit 5
 
 # Search with scraping (get full content)
-./scripts/search.py "firecrawl documentation" --limit 3
+python3 "$SKILL_ROOT/scripts/search.py" "firecrawl documentation" --limit 3
 ```
 
 ### map.py - URL Discovery
@@ -67,13 +69,13 @@ Discover all URLs on a website. Use before deciding what to scrape.
 
 ```bash
 # Map a website
-./scripts/map.py "https://docs.example.com"
+python3 "$SKILL_ROOT/scripts/map.py" "https://docs.example.com"
 
 # Limit number of URLs
-./scripts/map.py "https://example.com" --limit 100
+python3 "$SKILL_ROOT/scripts/map.py" "https://example.com" --limit 100
 
 # Search within mapped URLs
-./scripts/map.py "https://docs.example.com" --search "authentication"
+python3 "$SKILL_ROOT/scripts/map.py" "https://docs.example.com" --search "authentication"
 ```
 
 ### crawl.py - Multi-Page Crawling
@@ -82,13 +84,13 @@ Extract content from multiple related pages. Warning: can be slow and return lar
 
 ```bash
 # Basic crawl
-./scripts/crawl.py "https://docs.example.com"
+python3 "$SKILL_ROOT/scripts/crawl.py" "https://docs.example.com"
 
 # Limit pages
-./scripts/crawl.py "https://docs.example.com" --limit 20
+python3 "$SKILL_ROOT/scripts/crawl.py" "https://docs.example.com" --limit 20
 
 # Control crawl depth
-./scripts/crawl.py "https://docs.example.com" --limit 10 --depth 2
+python3 "$SKILL_ROOT/scripts/crawl.py" "https://docs.example.com" --limit 10 --depth 2
 ```
 
 ### extract.py - Structured Data Extraction
@@ -97,16 +99,16 @@ Extract specific structured data using LLM capabilities.
 
 ```bash
 # Extract with prompt
-./scripts/extract.py "https://example.com/pricing" \
+python3 "$SKILL_ROOT/scripts/extract.py" "https://example.com/pricing" \
   --prompt "Extract all pricing tiers with their features and prices"
 
 # Extract with JSON schema
-./scripts/extract.py "https://example.com/team" \
+python3 "$SKILL_ROOT/scripts/extract.py" "https://example.com/team" \
   --prompt "Extract team member information" \
   --schema '{"type":"object","properties":{"members":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"role":{"type":"string"},"bio":{"type":"string"}}}}}}'
 
 # Extract from multiple URLs
-./scripts/extract.py "https://example.com/page1" "https://example.com/page2" \
+python3 "$SKILL_ROOT/scripts/extract.py" "https://example.com/page1" "https://example.com/page2" \
   --prompt "Extract product information"
 ```
 
@@ -116,18 +118,18 @@ Autonomous agent that searches, navigates, and extracts data from anywhere on th
 
 ```bash
 # Simple research task
-./scripts/agent.py --prompt "Find the founders of Firecrawl and their backgrounds"
+python3 "$SKILL_ROOT/scripts/agent.py" --prompt "Find the founders of Firecrawl and their backgrounds"
 
 # Complex data gathering
-./scripts/agent.py --prompt "Find the top 5 AI startups founded in 2024 and their funding amounts"
+python3 "$SKILL_ROOT/scripts/agent.py" --prompt "Find the top 5 AI startups founded in 2024 and their funding amounts"
 
 # Focus on specific URLs
-./scripts/agent.py \
+python3 "$SKILL_ROOT/scripts/agent.py" \
   --prompt "Compare the features and pricing" \
   --urls "https://example1.com,https://example2.com"
 
 # With output schema
-./scripts/agent.py \
+python3 "$SKILL_ROOT/scripts/agent.py" \
   --prompt "Find recent tech layoffs" \
   --schema '{"type":"object","properties":{"layoffs":{"type":"array","items":{"type":"object","properties":{"company":{"type":"string"},"count":{"type":"number"},"date":{"type":"string"}}}}}}'
 ```

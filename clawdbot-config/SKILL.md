@@ -311,7 +311,7 @@ Instructions for using this skill...
 
 ## Resources
 
-Scripts: {baseDir}/scripts/process.py
+Scripts: python3 "$SKILL_ROOT/scripts/process.py"
 ```
 
 **Metadata for gating**:

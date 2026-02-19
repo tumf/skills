@@ -33,7 +33,8 @@ make
 
 ```bash
 # Run setup script to enable required APIs
-./scripts/setup_gcloud_project.sh PROJECT_ID
+# Note: Set SKILL_ROOT to this skill's base directory (scripts are "$SKILL_ROOT/scripts/...").
+bash "$SKILL_ROOT/scripts/setup_gcloud_project.sh" PROJECT_ID
 ```
 
 **Manual setup:**
@@ -71,7 +72,7 @@ make
 
 5. **Validate credentials** (optional):
    ```bash
-   ./scripts/validate_credentials.sh ~/Downloads/client_secret_*.json
+    bash "$SKILL_ROOT/scripts/validate_credentials.sh" ~/Downloads/client_secret_*.json
    ```
 
 6. **Store credentials**:

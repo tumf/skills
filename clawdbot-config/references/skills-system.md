@@ -112,14 +112,14 @@ metadata: {"clawdbot":{"emoji":"♊️","requires":{"bins":["gemini"]}}}
 - `command-arg-mode`: Argument handling mode (default: `"raw"`)
 - `metadata`: Single-line JSON object for gating and installation
 
-### Using {baseDir} in Instructions
+### Using SKILL_ROOT in Instructions
 
-Reference the skill folder path:
+Reference the skill folder path via `SKILL_ROOT`:
 
 ```markdown
 Run the script:
 ```bash
-python {baseDir}/scripts/process.py
+python3 "$SKILL_ROOT/scripts/process.py"
 ```
 ```
 

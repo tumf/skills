@@ -23,7 +23,7 @@
 gcloud services enable gmail.googleapis.com --project=PROJECT_ID
 
 # Or use setup script
-./scripts/setup_gcloud_project.sh PROJECT_ID
+bash "$SKILL_ROOT/scripts/setup_gcloud_project.sh" PROJECT_ID
 ```
 
 ### "No OAuth client credentials stored"
@@ -32,7 +32,7 @@ gcloud services enable gmail.googleapis.com --project=PROJECT_ID
 
 **Solution**:
 1. Download credentials JSON from Google Cloud Console
-2. Validate: `./scripts/validate_credentials.sh ~/Downloads/client_secret_*.json`
+2. Validate: `bash "$SKILL_ROOT/scripts/validate_credentials.sh" ~/Downloads/client_secret_*.json`
 3. Register: `gog auth credentials ~/Downloads/client_secret_*.json`
 
 ### "Invalid client credentials"
@@ -42,7 +42,7 @@ gcloud services enable gmail.googleapis.com --project=PROJECT_ID
 **Solution**:
 1. Re-download credentials from Console
 2. Ensure file type is "Desktop app"
-3. Validate with script: `./scripts/validate_credentials.sh FILE`
+3. Validate with script: `bash "$SKILL_ROOT/scripts/validate_credentials.sh" FILE`
 
 ### "Token refresh failed"
 
