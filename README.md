@@ -36,6 +36,12 @@ Create specialized OpenCode agents with proper configuration for primary agents 
 
 [Documentation](./opencode-agent-creator/README.md)
 
+### openclaw-agent-creator
+
+Create and maintain OpenClaw agent workspaces (bootstrap files + memory layout).
+
+[Documentation](./openclaw-agent-creator/README.md)
+
 ### slack-rs
 
 Slack Web API automation via the slack-rs CLI (Rust).
