@@ -30,6 +30,12 @@ Build maintainable Rust CLI programs with a consistent, automation-friendly stru
 - `rust-cli/references/templates.md`
 - Companion skill for agent-operated CLIs: [agentic-cli-design](https://github.com/tumf/skills/tree/main/agentic-cli-design)
 
+## Contributing
+
+This `README.md` stays user-facing by design. Contributor/developer workflow details live in:
+
+- `rust-cli/CONTRIBUTING.md`
+
 ## Troubleshooting
 
 ### Cross-platform testing pitfalls

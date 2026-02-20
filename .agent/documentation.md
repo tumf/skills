@@ -41,6 +41,8 @@ After the frontmatter, include:
 
 User-facing documentation that provides complete information about the skill.
 
+Best practice: keep `README.md` user-facing. Put contributor/developer workflow details in `CONTRIBUTING.md`.
+
 ### Required Sections
 
 ```markdown

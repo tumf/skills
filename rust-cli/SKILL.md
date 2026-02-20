@@ -17,6 +17,11 @@ Use this skill when you need to design or implement a Rust CLI with production-g
 - Logging/diagnostics: `tracing` + `tracing-subscriber` (write logs to stderr).
 - Structured output: `serde` + `serde_json`.
 
+## Documentation policy
+
+- Keep `README.md` user-facing (what the skill does, how to use it).
+- Put contributor/developer workflow details in `CONTRIBUTING.md` (how to change the skill, release notes, maintenance steps).
+
 ## Help output
 
 - `-h` and `--help` must display help text in English.
