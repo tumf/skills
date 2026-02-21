@@ -412,25 +412,8 @@ publish:
 	cargo publish
 ```
 
-## .wt/setup (repo bootstrap script)
+## Repo bootstrap entrypoint (.wt/setup)
 
-Create an executable script at `.wt/setup` and keep it as the one stable entrypoint for bootstrapping.
-This should be safe to run repeatedly and should avoid interactive prompts.
+For language-agnostic bootstrap script patterns (idempotent, non-interactive), see:
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-if ! command -v make >/dev/null 2>&1; then
-  echo "error: make not found" >&2
-  exit 1
-fi
-
-make setup
-```
-
-Make it executable:
-
-```bash
-chmod +x .wt/setup
-```
+- `oss-publish/references/templates.md`

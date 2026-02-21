@@ -5,17 +5,15 @@ Build maintainable Rust CLI programs with a consistent, automation-friendly stru
 ## What This Skill Covers
 
 - clap-based argument parsing (derive)
-- English help output (`-h`/`--help`) and meaningful per-subcommand help
 - anyhow-based error handling (fail fast)
 - tracing-based diagnostics (stderr)
-- JSON output mode and stdout/stderr separation
+- JSON output mode and stdout/stderr separation (Rust patterns)
 - predictable exit codes
-- choosing a unique binary/command name (avoid crates.io and common system collisions)
-- integration tests for the CLI binary
-- git hooks with `prek` (pre-commit / pre-push)
-- a predictable repo bootstrap entrypoint (`./.wt/setup` -> `make setup`)
+- integration tests for the CLI binary (`assert_cmd`)
 - release workflow with `cargo-release` (bump patch/minor/major) and publishing to crates.io
-- XDG filesystem layout: config in `~/.config/{app_name}`, non-git-managed data in `~/.local/share/{app_name}`
+- cross-platform filesystem/env pitfalls for Rust CLIs
+
+For language-agnostic OSS publication/release hygiene (LICENSE/SECURITY.md, CI policy, repo bootstrap conventions, pre-commit hooks), see the companion skill: [oss-publish](https://github.com/tumf/skills/tree/main/oss-publish)
 
 ## Example Trigger Phrases
 

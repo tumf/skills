@@ -3,12 +3,14 @@ name: rust-cli
 description: |
   General guidance for building Rust CLI programs (clap/anyhow/tracing/serde_json), with
   agent-friendly patterns: JSON output mode, stdout/stderr separation, predictable exit codes,
-  and a practical git-hooks setup using prek.
+  integration testing, and a cargo-release based release workflow.
 ---
 
 # rust-cli - Build Maintainable Rust CLIs
 
 Use this skill when you need to design or implement a Rust CLI with production-grade ergonomics and automation.
+
+For language-agnostic OSS publication/release hygiene (LICENSE/SECURITY.md, release notes, CI policy, repo bootstrap conventions), consult the `oss-publish` skill.
 
 ## Defaults (Agent-Friendly)
 
@@ -17,45 +19,10 @@ Use this skill when you need to design or implement a Rust CLI with production-g
 - Logging/diagnostics: `tracing` + `tracing-subscriber` (write logs to stderr).
 - Structured output: `serde` + `serde_json`.
 
-## Documentation policy
+## Companion Skill: agentic-cli-design
 
-- Keep `README.md` user-facing (what the skill does, how to use it).
-- Put contributor/developer workflow details in `CONTRIBUTING.md` (how to change the skill, release notes, maintenance steps).
-
-## Help output
-
-- `-h` and `--help` must display help text in English.
-- Do not disable clap help flags; ensure `--help` works at every level (root command and each subcommand).
-- If you have subcommands, set `about` and `long_about` (English) on the top-level command and each subcommand so `mycli sub --help` is meaningful.
-
-## Command/Binary Naming
-
-- Prefer a unique command name; check crates.io and common package managers.
-- Avoid reserved/common names (and collisions with typical system commands).
-- If the name is generic, consider a prefix (e.g., org/team) to reduce conflicts.
-
-## Filesystem layout (XDG)
-
-Assume `~/.config` is user-managed under git.
-
-- Config files: `~/.config/{app_name}` (XDG: `$XDG_CONFIG_HOME/{app_name}`).
-- Non-git-managed data (runtime/cache/state/artifacts): `~/.local/share/{app_name}` (XDG: `$XDG_DATA_HOME/{app_name}`).
-
-- macOS: still use the XDG-style `.config` / `.local/share` layout; do not use `~/Library/Application Support/`.
-- Precedence: `$XDG_CONFIG_HOME` / `$XDG_DATA_HOME` first; then `~/.config` / `~/.local/share`.
-
-When enforcing this layout, prefer `directories::BaseDirs` (for `home_dir()`) + XDG env vars; `directories::ProjectDirs` follows OS conventions.
-
-## Cross-platform environment
-
-- Do not assume OS-specific environment variables like `HOME` for cross-platform support.
-- Background: this may work on Linux/macOS but Windows may not set the same environment variables.
-- Team principle: environment-dependent values must be obtained via the Rust stdlib or well-established crates to abstract OS differences.
-- Practice: unify home directory retrieval via `directories::BaseDirs` (and `directories::ProjectDirs` for app-scoped config/cache/data paths).
-
-## CI policy
-
-- When changing filesystem/env-path/config discovery code, always include `windows-latest` in a CI matrix to catch issues early.
+If this CLI will be operated by AI agents and/or automation, also consult the `agentic-cli-design` skill.
+Borrow these concepts: machine-readable output, non-interactive operation, idempotent commands, safe-by-default behavior, observability, and introspection.
 
 ## Cross-platform testing pitfalls
 
@@ -169,39 +136,13 @@ fn test_cleanup_old_entries() {
 | Case sensitivity | Yes | No | Test with varied cases on Windows |
 | Temp directory | `/tmp` or `/var/tmp` | `%TEMP%` | Use `std::env::temp_dir()` or `tempfile` crate |
 
-## Companion Skill: agentic-cli-design
 
-If this CLI will be operated by AI agents and/or automation, also consult the `agentic-cli-design` skill.
-Borrow these concepts: machine-readable output, non-interactive operation, idempotent commands, safe-by-default behavior, observability, and introspection.
+## Rust-specific workflow (minimal)
 
-## Workflow
-
-1) Define the CLI surface area (subcommands, flags, required args) and keep it stable.
-2) Implement a "JSON output mode" (e.g. `--json`) that prints ONLY machine-readable JSON to stdout.
-3) Always send logs and progress to stderr; keep stdout reserved for the command result.
-4) Use explicit exit codes:
-   - `0`: success
-   - `1`: expected failures (validation errors, missing resource, etc.)
-   - `2`: CLI usage errors (typically handled by clap)
-5) Add tests that execute the binary and assert:
-   - exit code
-   - stdout schema/content (especially in `--json` mode)
-   - stderr contains diagnostics (but not required for correctness)
-6) Automate quality gates with git hooks. `prek` is a good approach for fast, compatible pre-commit/pre-push hooks.
-
-## Repo bootstrap entrypoint (.wt/setup)
-
-Prefer a single, predictable bootstrap command for local dev and automation.
-
-- Add an executable script at `.wt/setup`.
-- The script should run `make setup` (and nothing surprising).
-- Keep it idempotent and non-interactive.
-
-This gives humans and agents a stable entrypoint:
-
-```bash
-./.wt/setup
-```
+1) Implement a JSON output mode (e.g. `--json`) with stdout reserved for the result.
+2) Send logs/diagnostics to stderr (e.g. via `tracing`).
+3) Use predictable exit codes and integration tests that execute the compiled binary.
+4) For repo-wide release/quality gate conventions, see `oss-publish`.
 
 ## Release workflow (cargo-release)
 
