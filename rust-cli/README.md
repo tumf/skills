@@ -21,6 +21,7 @@ For language-agnostic OSS publication/release hygiene (LICENSE/SECURITY.md, CI p
 - "Add a --json flag and ensure stdout is machine-readable and logs go to stderr."
 - "Set up prek hooks to run cargo fmt/clippy/test."
 - "Write integration tests for this Rust CLI using assert_cmd."
+- "Write a Makefile for this Rust CLI (build/test/fmt/clippy/release/publish guards)."
 
 ## References
 

@@ -1,9 +1,8 @@
 ---
 name: rust-cli
 description: |
-  General guidance for building Rust CLI programs (clap/anyhow/tracing/serde_json), with
-  agent-friendly patterns: JSON output mode, stdout/stderr separation, predictable exit codes,
-  integration testing, and a cargo-release based release workflow.
+  Design and implementation guidance for maintainable Rust CLIs: solid ergonomics,
+  testable structure, and release/automation workflows.
 ---
 
 # rust-cli - Build Maintainable Rust CLIs
@@ -18,6 +17,14 @@ For language-agnostic OSS publication/release hygiene (LICENSE/SECURITY.md, rele
 - Error handling: `anyhow` (or `thiserror` for library-style errors).
 - Logging/diagnostics: `tracing` + `tracing-subscriber` (write logs to stderr).
 - Structured output: `serde` + `serde_json`.
+
+## Quick Recipes (Start Here)
+
+When the user asks you to create common project scaffolding, start from the copy/paste templates and adapt them.
+
+- Makefile: use the template in `rust-cli/references/templates.md` (section: "Makefile (common Rust CLI targets)").
+- CI (GitHub Actions): use the template in `rust-cli/references/templates.md`.
+- Integration tests: use the `assert_cmd` example in `rust-cli/references/templates.md`.
 
 ## Companion Skill: agentic-cli-design
 
