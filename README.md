@@ -60,6 +60,12 @@ Propose high-leverage product/UX improvements grounded in repo evidence, with pr
 
 [Documentation](./product-improvement-proposal/README.md)
 
+### greats-soul-archive-contributor
+
+Contribute profiles to tumf/greats-soul-archive (scaffold IDENTITY/SOUL/sources/meta + rebuild index).
+
+[Documentation](./greats-soul-archive-contributor/README.md)
+
 ---
 
 *More skills coming soon...*
