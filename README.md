@@ -66,6 +66,12 @@ Contribute profiles to tumf/greats-soul-archive (scaffold IDENTITY/SOUL/sources/
 
 [Documentation](./greats-soul-archive-contributor/README.md)
 
+### jp-grants
+
+Collect and answer questions about Japanese subsidies/grants (補助金・助成金) using up-to-date sources.
+
+[Documentation](./jp-grants/README.md)
+
 ---
 
 *More skills coming soon...*
