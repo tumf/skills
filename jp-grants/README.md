@@ -20,6 +20,14 @@ Requirements:
 
 Examples:
 
+## Install
+
+Install this skill from the repo:
+
+```bash
+npx skills add tumf/skills --skill jp-grants
+```
+
 ```bash
 export FIRECRAWL_API_KEY=...
 

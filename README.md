@@ -8,6 +8,9 @@ Skills follow the [Agent Skills](https://agentskills.io/) format.
 
 ```bash
 npx skills add tumf/skills
+
+# Install only one skill
+npx skills add tumf/skills --skill jp-grants
 ```
 
 ## Available Skills
