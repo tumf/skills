@@ -75,6 +75,12 @@ Collect and answer questions about Japanese subsidies/grants (補助金・助成
 
 [Documentation](./jp-grants/README.md)
 
+### fermi-estimation
+
+Solve quantitative questions with source-backed Fermi estimates, explicit assumptions, uncertainty ranges, and sanity checks.
+
+[Documentation](./fermi-estimation/README.md)
+
 ---
 
 *More skills coming soon...*
