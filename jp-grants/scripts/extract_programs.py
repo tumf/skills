@@ -42,6 +42,20 @@ DEFAULT_SCHEMA = {
                         "items": {"type": "string"},
                     },
                     "pdf_urls": {"type": "array", "items": {"type": "string"}},
+                    "past_award_examples": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": {"type": "string"},
+                                "organization": {"type": "string"},
+                                "project_summary": {"type": "string"},
+                                "fiscal_year_or_round": {"type": "string"},
+                                "award_amount": {"type": "string"},
+                                "evidence_quote": {"type": "string"},
+                            },
+                        },
+                    },
                     "last_updated": {"type": "string"},
                     "notes": {"type": "string"},
                     "confidence": {"type": "number"},
@@ -76,6 +90,7 @@ Rules:
 - Do not guess. If a field is not present, leave it empty.
 - Always set `source_url` to the page you extracted from.
 - Put the most authoritative URLs in `official_urls` and any linked official PDFs in `pdf_urls`.
+- If the page contains past award/adoption results, extract up to 5 concise examples in `past_award_examples`.
 - Prefer quoting small, relevant snippets in `evidence_quotes` for eligibility/deadline/amount fields.
 - `confidence` should be 0.0 to 1.0.
 
@@ -89,6 +104,7 @@ Fields:
 - application_window and/or deadline
 - how_to_apply (J-Grants, online, etc.)
 - required_documents
+- past_award_examples (past selected recipients/projects if present)
 """.strip()
 
 

@@ -11,6 +11,8 @@ Prefer primary sources. Use secondary sources only for discovery, then confirm w
 - Local government (`*.lg.jp`)
   - Prefectures, municipalities (frequently publish their own calls)
 
+For award-result checks, prioritize official public pages on `chusho.meti.go.jp`, `meti.go.jp`, and `*.lg.jp` before J-Grants. J-Grants currently has a restrictive `robots.txt` (`Disallow: /`, `Allow: /index.html`), which can reduce automated discovery coverage.
+
 ## Public support orgs (usually reliable; still confirm)
 
 - SMRJ (中小企業基盤整備機構): https://www.smrj.go.jp/
@@ -27,6 +29,18 @@ eligibility/deadlines against the most authoritative documents.
 - 小規模事業者持続化補助金: https://www.jizokukahojokin.info/
 - ものづくり補助金: https://www.monodukuri-hojo.jp/
 
+## Past award/adoption result pages (high value for fit assessment)
+
+When available, search official pages and PDFs for:
+
+- `採択結果`
+- `採択者一覧`
+- `採択事例`
+- `交付決定`
+- `採択`
+
+Use only official public pages/PDFs to understand what kinds of applicants and projects were actually selected, but do not treat them as a guarantee of future eligibility or acceptance.
+
 ## Secondary sources (discovery only)
 
 - Chambers of commerce / SME support centers
@@ -41,6 +55,11 @@ Use Japanese keywords; include official terms that appear in calls.
   - `site:jgrants-portal.go.jp 補助金 {topic}`
   - `site:go.jp 補助金 公募 {topic}`
   - `site:lg.jp 補助金 公募 {prefecture} {topic}`
+- Past result discovery:
+  - `site:go.jp {program-name} 採択結果`
+  - `site:lg.jp {program-name} 採択者一覧`
+  - `site:go.jp {program-name} 交付決定 pdf`
+  - `site:monodukuri-hojo.jp {program-name} 採択結果`
 - Purpose-oriented:
   - DX/IT: `IT導入`, `DX`, `デジタル化`
   - Hiring/wages: `キャリアアップ助成金`, `人材開発支援`, `賃上げ`

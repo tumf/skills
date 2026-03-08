@@ -4,10 +4,12 @@ Find candidate Japanese subsidy/grant program pages using Firecrawl web search.
 
 Usage:
     find_candidates.py --query "東京都 中小企業 DX 補助金" [--limit N] [--include-local]
+    find_candidates.py --query "ものづくり補助金" --include-award-results
 
 Examples:
     find_candidates.py --query "中小企業 省エネ 設備更新 補助金" --limit 20
     find_candidates.py --query "横浜市 小規模事業者 補助金" --include-local
+    find_candidates.py --query "事業再構築補助金" --include-award-results
 """
 
 import argparse
@@ -18,13 +20,13 @@ from urllib.parse import urlparse
 
 
 DEFAULT_SITE_QUERIES = [
-    "site:jgrants-portal.go.jp",
     "site:chusho.meti.go.jp",
     "site:meti.go.jp",
     "site:mhlw.go.jp",
     "site:smrj.go.jp",
     "site:j-net21.smrj.go.jp",
     "site:jetro.go.jp",
+    "site:jgrants-portal.go.jp",
 ]
 
 
@@ -48,6 +50,21 @@ DEFAULT_KEYWORDS = [
     "公募",
     "公募要領",
     "募集要項",
+]
+
+
+AWARD_RESULT_KEYWORDS = [
+    "採択結果",
+    "採択者一覧",
+    "採択事例",
+    "交付決定",
+    "採択",
+]
+
+
+AWARD_RESULT_PDF_SUFFIXES = [
+    "pdf",
+    "PDF",
 ]
 
 
@@ -142,13 +159,18 @@ Examples:
     parser.add_argument(
         "--include-executing-sites",
         action="store_true",
-        help="Include common executing secretariat sites (discovery only)",
+        help="Include common executing secretariat sites (discovery only; ignored for award-result searches)",
+    )
+    parser.add_argument(
+        "--include-award-results",
+        action="store_true",
+        help="Also search for past award/adoption result pages and PDFs from official public sources",
     )
     parser.add_argument(
         "--max-queries",
         type=int,
-        default=25,
-        help="Maximum number of expanded search queries (default: 25)",
+        default=60,
+        help="Maximum number of expanded search queries (default: 60)",
     )
     parser.add_argument(
         "--raw",
@@ -185,15 +207,34 @@ Examples:
     site_queries = list(DEFAULT_SITE_QUERIES)
     if args.include_local:
         site_queries.extend(LOCAL_SITE_QUERIES)
-    if args.include_executing_sites:
+    if args.include_executing_sites and not args.include_award_results:
         site_queries.extend(EXECUTING_SITE_QUERIES)
+
+    if args.include_award_results:
+        prioritized = [
+            "site:chusho.meti.go.jp",
+            "site:meti.go.jp",
+            "site:lg.jp",
+        ]
+        remaining = [site for site in site_queries if site not in prioritized]
+        site_queries = [
+            site for site in prioritized if site in site_queries
+        ] + remaining
 
     # Construct multiple queries to improve recall.
     expanded_queries = []
     for site_q in site_queries:
         expanded_queries.append(f"{site_q} {args.query}")
+        if args.include_award_results:
+            for kw in AWARD_RESULT_KEYWORDS:
+                expanded_queries.append(f"{site_q} {args.query} {kw}")
+                for suffix in AWARD_RESULT_PDF_SUFFIXES:
+                    expanded_queries.append(f"{site_q} {args.query} {kw} {suffix}")
         for kw in DEFAULT_KEYWORDS:
             expanded_queries.append(f"{site_q} {args.query} {kw}")
+
+    # Preserve order while removing duplicates so higher-priority award-result queries survive.
+    expanded_queries = list(dict.fromkeys(expanded_queries))
 
     # Cap to avoid excessive API usage.
     expanded_queries = expanded_queries[: max(1, args.max_queries)]
