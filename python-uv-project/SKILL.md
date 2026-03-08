@@ -38,7 +38,7 @@ For a generic Python project, include these by default unless the user asks for 
 - `src/<package_name>/__about__.py` as the canonical version source for Hatch when appropriate.
 - `src/<package_name>/py.typed` when the package may be distributed as a typed library.
 - `src/<package_name>/settings.py` for `pydantic-settings`-based configuration.
-- CI that runs the same Make targets used locally.
+- minimal GitHub Actions CI that runs the same Make targets used locally.
 - coverage support through `pytest-cov` and a dedicated `make coverage` target.
 
 Treat this as the default "this is worth having" baseline, not as an excuse to add large framework-specific boilerplate.
@@ -144,17 +144,19 @@ Prefer a simple, explicit Hatch configuration that updates one canonical version
 If the repo uses a package module such as `src/<package_name>/__about__.py`, point Hatch there.
 If the repo already manages version directly in `pyproject.toml`, keep the approach consistent.
 
-### 9. Add CI and verify the scaffold
+### 9. Add minimal GitHub Actions and verify the scaffold
 
-If the project is expected to live beyond a one-off script, add CI that runs the same local contract:
+If the project is expected to live beyond a one-off script, add a minimum GitHub Actions workflow.
+Keep it small and boring: one job on `ubuntu-latest`, triggered on `push` to `main` and on `pull_request`.
+
+The minimum CI contract is:
 
 ```bash
-make lint
-make typecheck
-make test
+make check
 ```
 
-Prefer a minimal GitHub Actions workflow over an elaborate matrix unless the project explicitly needs multi-platform coverage.
+Prefer `make check` as the single CI entry point so local and remote verification stay aligned.
+Do not add a matrix, release automation, cache tuning, or separate format job unless the project explicitly needs them.
 
 ### 10. Verify the scaffold
 

@@ -348,7 +348,7 @@ git add .
 git commit -m "Initial project scaffold"
 ```
 
-## .github/workflows/ci.yml
+## .github/workflows/ci.yml (minimum)
 
 ```yaml
 name: ci
@@ -376,12 +376,8 @@ jobs:
       - name: Sync dependencies
         run: uv sync --all-groups
 
-      - name: Lint
-        run: make lint
-
-      - name: Typecheck
-        run: make typecheck
-
-      - name: Test
-        run: make test
+      - name: Check
+        run: make check
 ```
+
+Keep CI minimal by default: one Linux job, no matrix, no release steps, and a single `make check` entry point.

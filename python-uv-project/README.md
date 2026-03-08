@@ -12,7 +12,7 @@ Opinionated skill for bootstrapping generic Python projects with `uv`, git, `pre
 - strict Pydantic-first data modeling
 - repo baseline files: `README.md`, MIT `LICENSE`, `.gitignore`, `.editorconfig`
 - `settings.py`, `py.typed`, and `__about__.py` scaffolding
-- minimal GitHub Actions CI running Make targets
+- minimum GitHub Actions CI running `make check`
 - Hatch version bump targets: `bump-patch`, `bump-minor`, `bump-major`
 
 ## Example Trigger Phrases
