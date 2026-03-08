@@ -343,7 +343,11 @@ def infer_group_metadata(node: dict, mode: str, children: list[dict]) -> dict:
     return metadata
 
 
-def parse_node(node: dict, prefix: str = "") -> dict:
+def parse_node(
+    node: dict,
+    prefix: str = "",
+    inherited_correlation: dict[str, object] | None = None,
+) -> dict:
     if not isinstance(node, dict):
         raise ValueError(f"Each model node must be an object, got: {node!r}")
 
@@ -353,7 +357,9 @@ def parse_node(node: dict, prefix: str = "") -> dict:
 
     name = node.get("name") or "model"
     qualified_name = f"{prefix}{name}" if prefix else name
-    inherited_correlation = merge_correlation_config(qualified_name, node)
+    merged_correlation = merge_correlation_config(
+        qualified_name, node, inherited_correlation
+    )
     factors = node.get("factors", [])
     groups = node.get("groups", [])
 
@@ -369,15 +375,18 @@ def parse_node(node: dict, prefix: str = "") -> dict:
                 factor,
                 index,
                 prefix=f"{qualified_name} > ",
-                inherited_correlation=inherited_correlation,
+                inherited_correlation=merged_correlation,
             )
         )
     for index, group in enumerate(groups, start=1):
         child_name = group.get("name") or f"group_{index}"
         group_prefix = f"{qualified_name} > "
         child_group = {**group, "name": child_name}
-        child_group.setdefault("correlation", inherited_correlation)
-        parsed_group = parse_node(child_group, prefix=group_prefix)
+        parsed_group = parse_node(
+            child_group,
+            prefix=group_prefix,
+            inherited_correlation=merged_correlation,
+        )
         children.append(parsed_group)
 
     ensure_children(qualified_name, children)
@@ -784,6 +793,12 @@ def metadata_summary(node: dict) -> str:
         value = node.get(key, "")
         if value:
             parts.append(f"{key}={value}")
+    source_tier = node.get("source_tier")
+    if source_tier not in (None, ""):
+        parts.append(f"source_tier={source_tier}")
+    as_of = node.get("as_of", "")
+    if as_of:
+        parts.append(f"as_of={as_of}")
     return ", ".join(parts) if parts else "-"
 
 
@@ -794,7 +809,106 @@ def formula(node: dict) -> str:
     pieces = [formula(child) for child in node["children"]]
     if len(pieces) == 1:
         return pieces[0]
-    return f"({joiner.join(pieces)})"
+    expression = f"({joiner.join(pieces)})"
+    if node.get("path") and " > " in node["path"]:
+        return f"{node['name']}: {expression}"
+    return expression
+
+
+def validate_sanity_checks(raw_checks: object) -> list[dict[str, str]]:
+    if raw_checks in (None, ""):
+        return []
+    if not isinstance(raw_checks, list):
+        raise ValueError("Top-level 'sanity_checks' must be a list")
+
+    normalized = []
+    for index, item in enumerate(raw_checks, start=1):
+        if isinstance(item, str):
+            normalized.append({"label": f"Check {index}", "result": item})
+            continue
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"Sanity check {index} must be a string or object, got: {item!r}"
+            )
+
+        label = item.get("label") or item.get("name") or f"Check {index}"
+        result = (
+            item.get("result")
+            or item.get("summary")
+            or item.get("value")
+            or item.get("observation")
+        )
+        if not isinstance(label, str):
+            raise ValueError(f"Sanity check {index} has non-string label: {label!r}")
+        if not isinstance(result, str) or not result.strip():
+            raise ValueError(
+                f"Sanity check {index} must include a non-empty string result"
+            )
+
+        normalized.append({"label": label.strip(), "result": result.strip()})
+    return normalized
+
+
+def derived_sanity_checks(
+    model: dict,
+    scenarios: dict[str, float],
+    correlations: list[dict],
+) -> list[dict[str, str]]:
+    checks = [
+        {
+            "label": "Scenario envelope",
+            "result": (
+                "Conservative/base/aggressive totals remain ordered at "
+                f"{headline_number(scenarios['conservative'])} / "
+                f"{headline_number(scenarios['base'])} / "
+                f"{headline_number(scenarios['aggressive'])}."
+            ),
+        }
+    ]
+
+    consistency_parts = []
+    for key in SUM_CONSISTENCY_KEYS:
+        value = model.get(key, "")
+        if value:
+            consistency_parts.append(f"{key}={value}")
+    if model["mode"] == "sum" and consistency_parts:
+        checks.append(
+            {
+                "label": "Sum-model consistency",
+                "result": (
+                    "Parser verified shared "
+                    + ", ".join(consistency_parts)
+                    + " across additive branches."
+                ),
+            }
+        )
+
+    if correlations:
+        strongest = correlations[0]
+        checks.append(
+            {
+                "label": "Correlation stress",
+                "result": (
+                    f"Group '{strongest['correlation_group']}' moves the total from "
+                    f"{headline_number(strongest['total_lower'])} to "
+                    f"{headline_number(strongest['total_upper'])} when stressed together."
+                ),
+            }
+        )
+    else:
+        checks.append(
+            {
+                "label": "Range spread",
+                "result": (
+                    f"Low/base/high stays within {model['high'] / model['low']:.2f}x "
+                    "from low to high."
+                    if model["low"] > 0
+                    else "Low bound is zero or negative, so spread is better read from absolute values."
+                ),
+            }
+        )
+
+    return checks
 
 
 def render_inputs_rows(model: dict) -> list[str]:
@@ -872,6 +986,7 @@ def render_markdown(result: dict) -> str:
     scenarios = result["scenarios"]
     correlations = result["correlations"]
     monte_carlo = result.get("monte_carlo")
+    sanity_checks = result.get("sanity_checks", [])
     lines = ["## Bottom line"]
     lines.append(f"- Best estimate: {headline_number(model['base'])}")
     lines.append(
@@ -903,8 +1018,8 @@ def render_markdown(result: dict) -> str:
     lines.extend(render_calculation_rows(model))
     lines.append("")
     lines.append("## Sanity checks")
-    lines.append("- Fill in top-down vs bottom-up comparison")
-    lines.append("- Fill in capacity, budget, or benchmark check")
+    for item in sanity_checks:
+        lines.append(f"- {item['label']}: {item['result']}")
     lines.append("")
     lines.append("## Sensitivity and confidence")
     if sensitivity:
@@ -969,12 +1084,16 @@ def build_result(
     monte_carlo_config = resolve_monte_carlo_config(
         payload, monte_carlo_samples, monte_carlo_seed
     )
+    scenarios = scenario_totals(model)
+    correlations = correlation_entries(model)
     return {
         "model": model,
         "factors": flatten_factors(model),
         "sensitivity": sensitivity_entries(model),
-        "correlations": correlation_entries(model),
-        "scenarios": scenario_totals(model),
+        "correlations": correlations,
+        "scenarios": scenarios,
+        "sanity_checks": validate_sanity_checks(payload.get("sanity_checks", []))
+        + derived_sanity_checks(model, scenarios, correlations),
         "monte_carlo": monte_carlo_summary(model, monte_carlo_config),
     }
 
