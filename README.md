@@ -57,6 +57,12 @@ General guidance and templates for building Rust CLI programs (clap/anyhow/traci
 
 [Documentation](./rust-cli/README.md)
 
+### python-uv-project
+
+Opinionated Python project bootstrap guidance built around `uv init`, git, `prek`, Makefile quality targets, Pydantic, and Hatch version bumps.
+
+[Documentation](./python-uv-project/README.md)
+
 ### product-improvement-proposal
 
 Propose high-leverage product/UX improvements grounded in repo evidence, with prioritized MVP plans.
