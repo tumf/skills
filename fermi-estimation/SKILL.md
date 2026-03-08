@@ -102,12 +102,19 @@ Example:
 python3 fermi-estimation/scripts/factor_model.py --input factors.json --format markdown
 ```
 
-The script accepts either a JSON file or inline JSON and returns low/base/high totals plus validation warnings, rollups, scenario totals, one-at-a-time sensitivity, and correlated-group stress tests.
+The script accepts either a JSON file or inline JSON and returns low/base/high totals plus validation warnings, rollups, scenario totals, one-at-a-time sensitivity, correlated-group stress tests, and optional Monte Carlo summaries.
 
 Optional scenario support:
 
 - Add `scenarios.conservative` and `scenarios.aggressive` on a factor when you want scenario values that differ from literal `low` and `high`
 - Add `correlation_group` on related factors when they should be stress-tested together
+- Add `correlation_direction` as `positive` or `negative` when a driver moves opposite the rest of its group
+- Add `correlation_strength` from `0` to `1` when the group move should be partial rather than full
+- Or add `correlation: {group, direction, strength}` on a group to inherit those settings across many factors
+- Add `tags` on factors and `correlation.apply_to` on a group when inherited correlation should affect only a subset of drivers
+- Add `monte_carlo: {enabled, samples, seed, correlated_groups}` or pass `--samples` / `--seed` when you want simulated percentile output in addition to deterministic bounds
+
+When `monte_carlo.correlated_groups` is enabled, factors in the same correlation group are sampled with shared group quantiles, adjusted by each factor's direction and strength.
 
 ## Step 5: Stress-Test The Result
 

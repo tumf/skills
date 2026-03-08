@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -33,9 +34,13 @@ METADATA_KEYS = (
     "source_tier",
     "as_of",
     "note",
+    "tags",
     "correlation_group",
+    "correlation_direction",
 )
 SUM_CONSISTENCY_KEYS = ("unit", "period", "currency", "geo", "dimension")
+ALLOWED_CORRELATION_DIRECTIONS = {"positive", "negative"}
+DEFAULT_MONTE_CARLO_SAMPLES = 5000
 
 
 def load_payload(raw_input: str) -> dict:
@@ -79,7 +84,123 @@ def validate_source_tier(name: str, source_tier: object) -> int | None:
     return source_tier
 
 
-def validate_factor(factor: dict, index: int, prefix: str = "") -> dict:
+def validate_correlation_direction(name: str, direction: object) -> str:
+    if direction in (None, ""):
+        return ""
+    if not isinstance(direction, str):
+        raise ValueError(
+            f"Factor '{name}' has non-string correlation_direction: {direction!r}"
+        )
+    if direction not in ALLOWED_CORRELATION_DIRECTIONS:
+        allowed = ", ".join(sorted(ALLOWED_CORRELATION_DIRECTIONS))
+        raise ValueError(
+            f"Factor '{name}' has unsupported correlation_direction '{direction}'. Expected one of: {allowed}"
+        )
+    return direction
+
+
+def validate_correlation_strength(name: str, strength: object) -> float:
+    if strength in (None, ""):
+        return 1.0
+    if not isinstance(strength, (int, float)):
+        raise ValueError(
+            f"Factor '{name}' has non-numeric correlation_strength: {strength!r}"
+        )
+    value = float(strength)
+    if value < 0 or value > 1:
+        raise ValueError(
+            f"Factor '{name}' has correlation_strength outside 0-1: {strength!r}"
+        )
+    return value
+
+
+def validate_string_list(name: str, key: str, value: object) -> list[str]:
+    if value in (None, ""):
+        return []
+    if not isinstance(value, list):
+        raise ValueError(f"Factor or group '{name}' has non-list {key}: {value!r}")
+    normalized = []
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(
+                f"Factor or group '{name}' has non-string {key} entry: {item!r}"
+            )
+        normalized.append(item)
+    return normalized
+
+
+def correlation_applies_to_factor(
+    factor: dict, inherited: dict[str, object] | None
+) -> bool:
+    if not inherited:
+        return True
+    apply_to = inherited.get("correlation_apply_to", [])
+    if not apply_to:
+        return True
+    if not isinstance(apply_to, list):
+        return True
+    factor_tags = set(
+        validate_string_list(
+            factor.get("name", "factor"), "tags", factor.get("tags", [])
+        )
+    )
+    return bool(factor_tags.intersection(apply_to))
+
+
+def merge_correlation_config(
+    owner_name: str, raw_node: dict, inherited: dict[str, object] | None = None
+) -> dict[str, object]:
+    inherited = inherited or {}
+    raw_config = raw_node.get("correlation", {})
+    if raw_config in (None, ""):
+        raw_config = {}
+    if not isinstance(raw_config, dict):
+        raise ValueError(
+            f"Group or factor '{owner_name}' has non-object correlation: {raw_config!r}"
+        )
+
+    group = raw_node.get("correlation_group")
+    if group is None:
+        group = raw_config.get("group", inherited.get("correlation_group", ""))
+    direction = raw_node.get("correlation_direction")
+    if direction is None:
+        direction = raw_config.get(
+            "direction", inherited.get("correlation_direction", "")
+        )
+    strength = raw_node.get("correlation_strength")
+    if strength is None:
+        strength = raw_config.get(
+            "strength", inherited.get("correlation_strength", 1.0)
+        )
+    apply_to = raw_config.get("apply_to", inherited.get("correlation_apply_to", []))
+    apply_to = validate_string_list(owner_name, "correlation.apply_to", apply_to)
+
+    if group in (None, ""):
+        return {
+            "correlation_group": "",
+            "correlation_direction": "",
+            "correlation_strength": 1.0,
+            "correlation_apply_to": apply_to,
+        }
+    if not isinstance(group, str):
+        raise ValueError(
+            f"Group or factor '{owner_name}' has non-string correlation_group: {group!r}"
+        )
+
+    return {
+        "correlation_group": group,
+        "correlation_direction": validate_correlation_direction(owner_name, direction),
+        "correlation_strength": validate_correlation_strength(owner_name, strength),
+        "correlation_apply_to": apply_to,
+    }
+
+
+def validate_factor(
+    factor: dict,
+    index: int,
+    prefix: str = "",
+    inherited_correlation: dict[str, object] | None = None,
+) -> dict:
     name = factor.get("name") or f"factor_{index}"
     qualified_name = f"{prefix}{name}" if prefix else name
     base = factor.get("base")
@@ -141,12 +262,30 @@ def validate_factor(factor: dict, index: int, prefix: str = "") -> dict:
         "base": base_value,
         "aggressive": aggressive_value,
     }
+    inherited_for_factor = inherited_correlation
+    if inherited_for_factor and not correlation_applies_to_factor(
+        factor, inherited_for_factor
+    ):
+        inherited_for_factor = {
+            "correlation_group": "",
+            "correlation_direction": "",
+            "correlation_strength": 1.0,
+            "correlation_apply_to": [],
+        }
+    item.update(merge_correlation_config(qualified_name, factor, inherited_for_factor))
+    item["tags"] = validate_string_list(qualified_name, "tags", factor.get("tags", []))
 
     for key in METADATA_KEYS:
         if key == "period":
             item[key] = validate_period(qualified_name, factor.get(key, ""))
+        elif key == "tags":
+            continue
+        elif key == "correlation_direction":
+            continue
         elif key == "source_tier":
             item[key] = validate_source_tier(qualified_name, factor.get(key))
+        elif key == "correlation_group":
+            continue
         else:
             value = factor.get(key, "")
             if value is None:
@@ -184,6 +323,9 @@ def unique_values(children: list[dict], key: str) -> set[str]:
 def infer_group_metadata(node: dict, mode: str, children: list[dict]) -> dict:
     metadata = {}
     for key in METADATA_KEYS:
+        if key == "tags":
+            metadata[key] = []
+            continue
         explicit_value = node.get(key, "")
         if explicit_value not in (None, ""):
             metadata[key] = explicit_value
@@ -211,6 +353,7 @@ def parse_node(node: dict, prefix: str = "") -> dict:
 
     name = node.get("name") or "model"
     qualified_name = f"{prefix}{name}" if prefix else name
+    inherited_correlation = merge_correlation_config(qualified_name, node)
     factors = node.get("factors", [])
     groups = node.get("groups", [])
 
@@ -221,11 +364,20 @@ def parse_node(node: dict, prefix: str = "") -> dict:
 
     children = []
     for index, factor in enumerate(factors, start=1):
-        children.append(validate_factor(factor, index, prefix=f"{qualified_name} > "))
+        children.append(
+            validate_factor(
+                factor,
+                index,
+                prefix=f"{qualified_name} > ",
+                inherited_correlation=inherited_correlation,
+            )
+        )
     for index, group in enumerate(groups, start=1):
         child_name = group.get("name") or f"group_{index}"
         group_prefix = f"{qualified_name} > "
-        parsed_group = parse_node({**group, "name": child_name}, prefix=group_prefix)
+        child_group = {**group, "name": child_name}
+        child_group.setdefault("correlation", inherited_correlation)
+        parsed_group = parse_node(child_group, prefix=group_prefix)
         children.append(parsed_group)
 
     ensure_children(qualified_name, children)
@@ -261,6 +413,15 @@ def compute_total(children: list[dict], mode: str) -> dict:
     return {"mode": mode, "low": low, "base": base, "high": high}
 
 
+def compute_node_value(children: list[float], mode: str) -> float:
+    if mode == "product":
+        total = 1.0
+        for child in children:
+            total *= child
+        return total
+    return sum(children)
+
+
 def flatten_factors(node: dict) -> list[dict]:
     if node["kind"] == "factor":
         return [node]
@@ -270,12 +431,160 @@ def flatten_factors(node: dict) -> list[dict]:
     return factors
 
 
+def sample_factor_value(factor: dict, rng: random.Random) -> float:
+    return rng.triangular(factor["low"], factor["high"], factor["base"])
+
+
+def triangular_quantile(low: float, high: float, mode: float, q: float) -> float:
+    if q <= 0:
+        return low
+    if q >= 1:
+        return high
+    if high == low:
+        return low
+    midpoint = (mode - low) / (high - low)
+    if q < midpoint:
+        return low + math.sqrt(q * (high - low) * (mode - low))
+    return high - math.sqrt((1 - q) * (high - low) * (high - mode))
+
+
+def monte_carlo_factor_value(
+    factor: dict, rng: random.Random, group_quantiles: dict[str, float]
+) -> float:
+    group = factor.get("correlation_group", "")
+    independent_q = rng.random()
+    if not group:
+        return triangular_quantile(
+            factor["low"], factor["high"], factor["base"], independent_q
+        )
+
+    group_q = group_quantiles[group]
+    direction = factor.get("correlation_direction", "") or "positive"
+    if direction == "negative":
+        group_q = 1.0 - group_q
+    strength = factor.get("correlation_strength", 1.0)
+    effective_q = ((1.0 - strength) * independent_q) + (strength * group_q)
+    return triangular_quantile(
+        factor["low"], factor["high"], factor["base"], effective_q
+    )
+
+
+def sample_node_value(node: dict, rng: random.Random) -> float:
+    if node["kind"] == "factor":
+        return sample_factor_value(node, rng)
+    child_values = [sample_node_value(child, rng) for child in node["children"]]
+    return compute_node_value(child_values, node["mode"])
+
+
+def sample_node_value_correlated(
+    node: dict, rng: random.Random, group_quantiles: dict[str, float]
+) -> float:
+    if node["kind"] == "factor":
+        return monte_carlo_factor_value(node, rng, group_quantiles)
+    child_values = [
+        sample_node_value_correlated(child, rng, group_quantiles)
+        for child in node["children"]
+    ]
+    return compute_node_value(child_values, node["mode"])
+
+
+def percentile(sorted_values: list[float], value: float) -> float:
+    if not sorted_values:
+        raise ValueError("Cannot compute percentile on empty sample set")
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    position = (len(sorted_values) - 1) * value
+    lower_index = math.floor(position)
+    upper_index = math.ceil(position)
+    if lower_index == upper_index:
+        return sorted_values[lower_index]
+    weight = position - lower_index
+    lower = sorted_values[lower_index]
+    upper = sorted_values[upper_index]
+    return lower + ((upper - lower) * weight)
+
+
+def resolve_monte_carlo_config(
+    payload: dict, samples_override: int | None, seed_override: int | None
+) -> dict | None:
+    raw_config = payload.get("monte_carlo", {})
+    if raw_config in (None, ""):
+        raw_config = {}
+    if not isinstance(raw_config, dict):
+        raise ValueError(f"Model has non-object monte_carlo config: {raw_config!r}")
+
+    enabled = raw_config.get("enabled")
+    if enabled is None:
+        enabled = samples_override is not None
+    if not isinstance(enabled, bool):
+        raise ValueError(f"Model has non-boolean monte_carlo.enabled: {enabled!r}")
+    if not enabled:
+        return None
+
+    samples = samples_override
+    if samples is None:
+        samples = raw_config.get("samples", DEFAULT_MONTE_CARLO_SAMPLES)
+    if not isinstance(samples, int) or samples <= 0:
+        raise ValueError(f"Model has invalid monte_carlo sample count: {samples!r}")
+
+    seed = seed_override if seed_override is not None else raw_config.get("seed")
+    if seed is not None and not isinstance(seed, int):
+        raise ValueError(f"Model has non-integer monte_carlo seed: {seed!r}")
+
+    correlated_groups = raw_config.get("correlated_groups", True)
+    if not isinstance(correlated_groups, bool):
+        raise ValueError(
+            "Model has non-boolean monte_carlo.correlated_groups: "
+            f"{correlated_groups!r}"
+        )
+
+    return {
+        "enabled": True,
+        "samples": samples,
+        "seed": seed,
+        "correlated_groups": correlated_groups,
+    }
+
+
+def monte_carlo_summary(model: dict, config: dict | None) -> dict | None:
+    if not config:
+        return None
+    rng = random.Random(config.get("seed"))
+    groups = sorted(factor_paths_by_correlation_group(model))
+    use_correlated_groups = bool(groups) and config.get("correlated_groups", True)
+    draws = []
+    for _ in range(config["samples"]):
+        if use_correlated_groups:
+            group_quantiles = {group: rng.random() for group in groups}
+            draws.append(sample_node_value_correlated(model, rng, group_quantiles))
+        else:
+            draws.append(sample_node_value(model, rng))
+    draws.sort()
+    mean = sum(draws) / len(draws)
+    return {
+        "samples": config["samples"],
+        "seed": config.get("seed"),
+        "correlated_groups": use_correlated_groups,
+        "group_count": len(groups) if use_correlated_groups else 0,
+        "mean": mean,
+        "p05": percentile(draws, 0.05),
+        "p50": percentile(draws, 0.50),
+        "p95": percentile(draws, 0.95),
+        "min": draws[0],
+        "max": draws[-1],
+    }
+
+
 def factor_scenario_value(factor: dict, scenario_name: str) -> float:
     if scenario_name == "conservative":
         return factor["scenarios"]["conservative"]
     if scenario_name == "aggressive":
         return factor["scenarios"]["aggressive"]
     return factor["base"]
+
+
+def interpolated_value(base: float, target: float, strength: float) -> float:
+    return base + ((target - base) * strength)
 
 
 def set_factor_value(node: dict, target_path: str, scenario_key: str) -> None:
@@ -349,22 +658,38 @@ def sensitivity_entries(model: dict) -> list[dict]:
     return sorted(entries, key=lambda item: item["swing"], reverse=True)
 
 
-def factor_paths_by_correlation_group(model: dict) -> dict[str, list[str]]:
+def factor_paths_by_correlation_group(model: dict) -> dict[str, list[dict]]:
     grouped = {}
     for factor in flatten_factors(model):
         group = factor.get("correlation_group", "")
         if not group:
             continue
-        grouped.setdefault(group, []).append(factor["path"])
+        grouped.setdefault(group, []).append(factor)
     return grouped
 
 
+def correlation_target_value(factor: dict, scenario_name: str) -> float:
+    direction = factor.get("correlation_direction", "") or "positive"
+    if direction == "negative":
+        mapped_scenario = (
+            "aggressive" if scenario_name == "conservative" else "conservative"
+        )
+    else:
+        mapped_scenario = scenario_name
+    raw_target = factor_scenario_value(factor, mapped_scenario)
+    return interpolated_value(
+        factor["base"], raw_target, factor.get("correlation_strength", 1.0)
+    )
+
+
 def set_paths_to_scenario(
-    node: dict, target_paths: set[str], scenario_name: str
+    node: dict, target_factors: dict[str, dict], scenario_name: str
 ) -> None:
     if node["kind"] == "factor":
-        if node["path"] in target_paths:
-            value = factor_scenario_value(node, scenario_name)
+        if node["path"] in target_factors:
+            value = correlation_target_value(
+                target_factors[node["path"]], scenario_name
+            )
         else:
             value = node["base"]
         node["low"] = value
@@ -373,7 +698,7 @@ def set_paths_to_scenario(
         return
 
     for child in node["children"]:
-        set_paths_to_scenario(child, target_paths, scenario_name)
+        set_paths_to_scenario(child, target_factors, scenario_name)
 
     totals = compute_total(node["children"], node["mode"])
     node["low"] = totals["low"]
@@ -384,21 +709,34 @@ def set_paths_to_scenario(
 def correlation_entries(model: dict) -> list[dict]:
     base_total = model["base"]
     entries = []
-    for group, paths in factor_paths_by_correlation_group(model).items():
+    for group, factors in factor_paths_by_correlation_group(model).items():
         conservative_model = deepcopy(model)
         aggressive_model = deepcopy(model)
-        target_paths = set(paths)
-        set_paths_to_scenario(conservative_model, target_paths, "conservative")
-        set_paths_to_scenario(aggressive_model, target_paths, "aggressive")
+        target_factors = {factor["path"]: factor for factor in factors}
+        set_paths_to_scenario(conservative_model, target_factors, "conservative")
+        set_paths_to_scenario(aggressive_model, target_factors, "aggressive")
         low_total = conservative_model["base"]
         high_total = aggressive_model["base"]
         swing = max(abs(base_total - low_total), abs(high_total - base_total))
+        lower_total = min(low_total, high_total)
+        upper_total = max(low_total, high_total)
         entries.append(
             {
                 "correlation_group": group,
-                "paths": sorted(paths),
+                "paths": sorted(target_factors),
+                "drivers": [
+                    {
+                        "path": factor["path"],
+                        "direction": factor.get("correlation_direction", "")
+                        or "positive",
+                        "strength": factor.get("correlation_strength", 1.0),
+                    }
+                    for factor in sorted(factors, key=lambda item: item["path"])
+                ],
                 "total_if_conservative": low_total,
                 "total_if_aggressive": high_total,
+                "total_lower": lower_total,
+                "total_upper": upper_total,
                 "swing": swing,
             }
         )
@@ -488,6 +826,12 @@ def render_factor_scenarios(factor: dict) -> str:
         parts.append(f"aggr={short_number(scenario_map['aggressive'])}")
     if factor.get("correlation_group", ""):
         parts.append(f"corr={factor['correlation_group']}")
+    direction = factor.get("correlation_direction", "")
+    if direction:
+        parts.append(f"dir={direction}")
+    strength = factor.get("correlation_strength", 1.0)
+    if strength != 1.0:
+        parts.append(f"strength={strength:.2f}")
     return ", ".join(parts) if parts else "-"
 
 
@@ -527,6 +871,7 @@ def render_markdown(result: dict) -> str:
     sensitivity = result["sensitivity"]
     scenarios = result["scenarios"]
     correlations = result["correlations"]
+    monte_carlo = result.get("monte_carlo")
     lines = ["## Bottom line"]
     lines.append(f"- Best estimate: {headline_number(model['base'])}")
     lines.append(
@@ -565,6 +910,21 @@ def render_markdown(result: dict) -> str:
     if sensitivity:
         lines.append(f"- Biggest uncertainty: {sensitivity[0]['path']}")
     lines.append(f"- Confidence: {confidence_label(model, sensitivity)}")
+    if monte_carlo:
+        lines.append(
+            "- Monte Carlo: p05 {p05}, p50 {p50}, p95 {p95}, mean {mean} from {samples} draws{suffix}".format(
+                p05=headline_number(monte_carlo["p05"]),
+                p50=headline_number(monte_carlo["p50"]),
+                p95=headline_number(monte_carlo["p95"]),
+                mean=headline_number(monte_carlo["mean"]),
+                samples=monte_carlo["samples"],
+                suffix=(
+                    f", correlated across {monte_carlo['group_count']} groups"
+                    if monte_carlo.get("correlated_groups")
+                    else ""
+                ),
+            )
+        )
     for item in sensitivity[:5]:
         lines.append(
             "- {path}: total moves from {low} to {high} when only this factor moves".format(
@@ -576,28 +936,46 @@ def render_markdown(result: dict) -> str:
     if correlations:
         lines.append("- Correlated groups:")
         for item in correlations[:3]:
+            driver_summary = ", ".join(
+                "{path} ({direction}, {strength:.2f})".format(
+                    path=driver["path"],
+                    direction=driver["direction"],
+                    strength=driver["strength"],
+                )
+                for driver in item["drivers"]
+            )
             lines.append(
-                "  - {group}: total moves from {low} to {high} when this group moves together".format(
+                "  - {group}: total moves from {low} to {high} when this group moves together [{drivers}]".format(
                     group=item["correlation_group"],
-                    low=headline_number(item["total_if_conservative"]),
-                    high=headline_number(item["total_if_aggressive"]),
+                    low=headline_number(item["total_lower"]),
+                    high=headline_number(item["total_upper"]),
+                    drivers=driver_summary,
                 )
             )
     return "\n".join(lines)
 
 
-def build_result(payload: dict, forced_mode: str | None) -> dict:
+def build_result(
+    payload: dict,
+    forced_mode: str | None,
+    monte_carlo_samples: int | None = None,
+    monte_carlo_seed: int | None = None,
+) -> dict:
     if forced_mode is not None:
         payload = dict(payload)
         payload["mode"] = forced_mode
 
     model = parse_node(payload)
+    monte_carlo_config = resolve_monte_carlo_config(
+        payload, monte_carlo_samples, monte_carlo_seed
+    )
     return {
         "model": model,
         "factors": flatten_factors(model),
         "sensitivity": sensitivity_entries(model),
         "correlations": correlation_entries(model),
         "scenarios": scenario_totals(model),
+        "monte_carlo": monte_carlo_summary(model, monte_carlo_config),
     }
 
 
@@ -608,11 +986,23 @@ def main() -> int:
     )
     parser.add_argument("--mode", choices=sorted(ALLOWED_MODES), default=None)
     parser.add_argument("--format", choices=["json", "markdown"], default="json")
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=None,
+        help="Enable Monte Carlo with this many samples",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for Monte Carlo sampling",
+    )
     args = parser.parse_args()
 
     try:
         payload = load_payload(args.input)
-        result = build_result(payload, args.mode)
+        result = build_result(payload, args.mode, args.samples, args.seed)
         if args.format == "json":
             json.dump(result, sys.stdout, indent=2)
             sys.stdout.write("\n")
