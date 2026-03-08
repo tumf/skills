@@ -5,6 +5,8 @@ description: |
   Use when creating or standardizing a Python repository that should include: git initialization, Makefile-driven
   `test`/`format`/`lint`/`typecheck` workflows, `prek` git hooks, strict typed data models with Pydantic, and
   Hatch-based semantic version bumps via `make bump-patch`, `make bump-minor`, and `make bump-major`.
+  Also use when you want a solid generic Python repo baseline with README, LICENSE, `.gitignore`, `.editorconfig`,
+  CI, coverage, settings management, and typed-package scaffolding.
 ---
 
 # python-uv-project - Opinionated Python Project Bootstrap
@@ -23,6 +25,23 @@ Prefer current stable releases and avoid unnecessary version pin micromanagement
 - Use `pydantic` (and `pydantic-settings` when config/env modeling is needed) for strict data contracts.
 - Use `hatch` for version bump operations.
 - Drive routine developer commands through `Makefile` targets: `test`, `format`, `lint`, `typecheck`.
+- Include a practical repo baseline: `README.md`, `LICENSE`, `.gitignore`, `.editorconfig`, CI, and coverage support.
+
+## Standard repo baseline
+
+For a generic Python project, include these by default unless the user asks for a slimmer scaffold:
+
+- `README.md` with setup, major Make targets, and developer workflow.
+- `LICENSE` using MIT by default when the repo is intended for sharing or publication.
+- `.gitignore` for Python caches, local environments, build outputs, and IDE noise.
+- `.editorconfig` for consistent whitespace and line endings.
+- `src/<package_name>/__about__.py` as the canonical version source for Hatch when appropriate.
+- `src/<package_name>/py.typed` when the package may be distributed as a typed library.
+- `src/<package_name>/settings.py` for `pydantic-settings`-based configuration.
+- CI that runs the same Make targets used locally.
+- coverage support through `pytest-cov` and a dedicated `make coverage` target.
+
+Treat this as the default "this is worth having" baseline, not as an excuse to add large framework-specific boilerplate.
 
 ## Workflow
 
@@ -54,6 +73,7 @@ Add the development dependencies through `uv` and wire them into `pyproject.toml
 Recommended dev tools:
 
 - `pytest`
+- `pytest-cov` when coverage is part of the baseline
 - `ruff`
 - `pyright`
 - `hatch`
@@ -70,6 +90,8 @@ Every project created with this skill should expose these targets at minimum:
 - `make format`
 - `make lint`
 - `make typecheck`
+- `make check`
+- `make coverage`
 - `make bump-patch`
 - `make bump-minor`
 - `make bump-major`
@@ -100,7 +122,16 @@ When the project touches structured data, configs, request/response models, or f
 
 Do not leave loosely typed config parsing or ad hoc JSON validation in place if Pydantic can express it cleanly.
 
-### 7. Set up Hatch version bumps
+### 7. Establish logging and settings defaults
+
+Set the project up so application code prefers `logging` over scattered `print` statements.
+For reusable templates, include a minimal `settings.py` backed by `pydantic-settings` and keep environment parsing there.
+
+- keep settings models explicit and typed
+- load configuration once near the application boundary
+- avoid reading raw environment variables throughout the codebase
+
+### 8. Set up Hatch version bumps
 
 Use Hatch for release version changes and expose it via Make.
 The user specifically wants:
@@ -113,7 +144,19 @@ Prefer a simple, explicit Hatch configuration that updates one canonical version
 If the repo uses a package module such as `src/<package_name>/__about__.py`, point Hatch there.
 If the repo already manages version directly in `pyproject.toml`, keep the approach consistent.
 
-### 8. Verify the scaffold
+### 9. Add CI and verify the scaffold
+
+If the project is expected to live beyond a one-off script, add CI that runs the same local contract:
+
+```bash
+make lint
+make typecheck
+make test
+```
+
+Prefer a minimal GitHub Actions workflow over an elaborate matrix unless the project explicitly needs multi-platform coverage.
+
+### 10. Verify the scaffold
 
 After generating or refactoring the project, run the full local workflow:
 
@@ -122,6 +165,7 @@ make format
 make lint
 make typecheck
 make test
+make coverage
 ```
 
 If hooks were added, also install them and ensure `prek run --all-files` passes.
