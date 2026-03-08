@@ -1,6 +1,6 @@
 ---
 name: fermi-estimation
-description: Solve user questions with defensible Fermi estimates using explicit assumptions, source-backed inputs, uncertainty ranges, and sensitivity analysis. Use when exact data is unavailable or too slow to collect but the user still needs a quantitative answer for counts, market size, demand, costs, revenue, capacity, timing, or operational scale. Autonomously gather accessible evidence, prefer current primary sources, and drive to a conclusion without asking for approval.
+description: Solve user questions with defensible Fermi estimates using explicit assumptions, source-backed inputs, uncertainty ranges, and sensitivity analysis. Use when exact data is unavailable or too slow to collect but the user still needs a quantitative answer for counts, market size, demand, costs, revenue, capacity, timing, or operational scale. Prefer quick primary-source lookup when it exists; use Fermi estimation as fallback or cross-check when direct measurement is unavailable, stale, fragmented, or too slow. Autonomously gather accessible evidence, prefer current primary sources, and drive to a conclusion without asking for approval.
 ---
 
 # Fermi Estimation
@@ -18,6 +18,19 @@ Produce an answer that is numerically useful, transparent about uncertainty, and
 
 If the user says to solve by Fermi estimation, do not stop for approval. Work through to a final answer with the best evidence you can access.
 
+## When Not To Use It
+
+Do not use Fermi estimation when a current primary-source answer is directly available with a quick lookup.
+
+Prefer exact lookup first when the answer can be retrieved quickly from:
+
+- Official statistics or regulator datasets
+- Public filings or company disclosures
+- Current pricing, usage, or policy pages
+- A user-provided source that directly answers the question
+
+Use Fermi estimation as a fallback or cross-check when direct measurement is unavailable, stale, fragmented, or too slow.
+
 ## Step 1: Define The Quantity
 
 Lock down these items explicitly in the answer, even if you infer them:
@@ -28,6 +41,13 @@ Lock down these items explicitly in the answer, even if you infer them:
 - Inclusion and exclusion rules
 
 If the request is ambiguous, choose the most decision-useful interpretation, state it, and continue.
+
+If unresolved scope ambiguity is likely to change the estimate materially, either:
+
+1. present two scoped estimates, or
+2. ask one critical clarification.
+
+Otherwise, infer the most decision-useful scope and continue.
 
 ## Step 2: Evidence First
 
@@ -74,15 +94,20 @@ Always provide a range unless the user explicitly wants a point estimate only.
 
 Use narrow ranges for sourced facts and wider ranges for inferred behavior. Never hide uncertainty behind a single precise number.
 
-If the model is multiplicative or additive and you want consistent arithmetic, use `fermi-estimation/scripts/factor_product.py`.
+If the model is multiplicative, additive, or nested (for example sum-of-products), and you want consistent arithmetic, use `fermi-estimation/scripts/factor_model.py`.
 
 Example:
 
 ```bash
-python3 fermi-estimation/scripts/factor_product.py --input factors.json --format markdown
+python3 fermi-estimation/scripts/factor_model.py --input factors.json --format markdown
 ```
 
-The script accepts either a JSON file or inline JSON and returns low/base/high totals plus a simple sensitivity ranking.
+The script accepts either a JSON file or inline JSON and returns low/base/high totals plus validation warnings, rollups, scenario totals, one-at-a-time sensitivity, and correlated-group stress tests.
+
+Optional scenario support:
+
+- Add `scenarios.conservative` and `scenarios.aggressive` on a factor when you want scenario values that differ from literal `low` and `high`
+- Add `correlation_group` on related factors when they should be stress-tested together
 
 ## Step 5: Stress-Test The Result
 
@@ -122,6 +147,7 @@ For a concise template, read `fermi-estimation/references/report-template.md`.
 - Using too many factors with weak justification
 - Multiplying percentages and counts with mismatched populations
 - Mixing monthly, annual, and daily units
+- Adding segments with mismatched currency, geography, or time basis
 - Treating one anecdote as a market-wide fact
 - Presenting a point estimate without a plausible range
 - Asking the user for unnecessary confirmation before concluding
