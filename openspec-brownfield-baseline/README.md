@@ -1,4 +1,4 @@
-# OpenSpec Brownfield Baseline
+# openspec-brownfield-baseline
 
 Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development.
 
@@ -6,12 +6,29 @@ This skill is for brownfield adoption: create a trustworthy baseline in `openspe
 
 ## What You Get
 
+- `openspec-brownfield-baseline/SKILL.md`: agent instructions for brownfield OpenSpec adoption
 - a proposed domain map for `openspec/specs/`
 - guidance on choosing behavior-based boundaries instead of folder-based ones
 - extraction of observable contracts from code, tests, APIs, and docs
 - draft `spec.md` files with requirements and scenarios
 - a review pass that separates intended behavior from inferred behavior and likely bugs
 - a phased rollout approach for introducing OpenSpec without freezing delivery
+
+## Install The Skill
+
+Recommended:
+
+```bash
+npx skills add tumf/skills --skill openspec-brownfield-baseline
+```
+
+Alternative: load the skill file directly in your agent config:
+
+```jsonc
+{
+  "instructions": ["path/to/openspec-brownfield-baseline/SKILL.md"]
+}
+```
 
 ## Example Prompts
 
@@ -26,3 +43,4 @@ This skill is for brownfield adoption: create a trustworthy baseline in `openspe
 - Reverse-engineered specs are drafts until reviewed by a human.
 - Specs should capture observable behavior and constraints, not internal implementation trivia.
 - Start with high-change or high-risk domains first instead of trying to spec the whole repo in one pass.
+- After the baseline is accepted, new work should flow through `openspec/changes/`.
