@@ -15,11 +15,11 @@ This skill is for brownfield adoption: create a trustworthy baseline in `openspe
 
 ## Example Prompts
 
-- "OpenSpec を途中導入したい。今の実装から baseline spec を起こして"
-- "既存 repo から `openspec/specs/` を作る手順を使って"
-- "このプロジェクトを brownfield で OpenSpec 化したい"
-- "現実装から OpenSpec の source of truth を作りたい"
-- "まず auth と billing だけ baseline spec にして"
+- "Adopt OpenSpec mid-project and derive a baseline spec from the current implementation."
+- "Use the brownfield workflow to create `openspec/specs/` from an existing repo."
+- "I want to introduce OpenSpec to this brownfield project."
+- "Create the current source of truth for OpenSpec from the existing implementation."
+- "Start with baseline specs for auth and billing only."
 
 ## Notes
 
