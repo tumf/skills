@@ -187,6 +187,27 @@ Before finishing, verify that:
 
 If asked, identify gaps between the specs and the code/tests.
 
+#### Validate specs with the OpenSpec CLI
+
+After drafting specs, run the OpenSpec validator to check structural and formatting correctness:
+
+```bash
+# If the CLI is installed globally
+openspec validate --specs --json
+
+# Or via npx without global install
+npx @fission-ai/openspec@latest validate --specs --json
+```
+
+The `--specs` flag targets spec files under `openspec/specs/`. The `--json` flag produces machine-readable output, which is useful for CI pipelines and automated checks.
+
+Fix any reported errors before promoting specs to source of truth. Common issues include:
+- missing required sections (Purpose, Requirements)
+- malformed scenario blocks (GIVEN/WHEN/THEN)
+- invalid RFC 2119 language usage
+
+If the CLI is not available, fall back to manual review of the spec structure against the format described in step 5.
+
 ### 9. Switch future work to changes
 
 After the baseline is accepted, recommend that all new work go through:
