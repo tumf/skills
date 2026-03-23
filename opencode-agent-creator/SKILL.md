@@ -1,6 +1,6 @@
 ---
 name: opencode-agent-creator
-description: Create specialized OpenCode agents with proper configuration for primary agents and subagents
+description: Create specialized OpenCode agents with proper configuration for primary agents and subagents. Use when the user wants reusable OpenCode agent profiles, needs `agent/*.md` files or `opencode.jsonc` agent entries, wants to configure prompts/models/tool access, or needs to split work between a primary agent and subagents safely.
 tags: [opencode, agent, ai, automation]
 version: 1.0.0
 ---

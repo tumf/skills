@@ -26,6 +26,13 @@ chmod +x {skill}/scripts/*.py
 
 # Example
 ./firecrawl/scripts/scrape.py "https://example.com"
+
+# Validate repository metadata
+python3 scripts/validate_skills.py
+
+# Regenerate the top-level README skill index, then re-check
+python3 scripts/validate_skills.py --write
+python3 scripts/validate_skills.py
 ```
 
 ## Detailed Guidelines

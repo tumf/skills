@@ -1,6 +1,6 @@
 ---
 name: opencode-command-creator
-description: Create custom OpenCode commands with proper structure and configuration
+description: Create custom OpenCode commands with proper structure, trigger descriptions, arguments, and configuration. Use when the user wants reusable slash/command workflows in OpenCode, needs `.opencode/commands/*.md` or `opencode.jsonc` entries, wants command templates with `$ARGUMENTS`, or needs to override/extend built-in commands safely.
 tags: [opencode, command, cli, automation]
 version: 1.0.0
 ---

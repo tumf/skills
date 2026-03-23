@@ -1,8 +1,11 @@
 ---
 name: rust-cli
 description: |
-  Design and implementation guidance for maintainable Rust CLIs: solid ergonomics,
-  testable structure, and release/automation workflows.
+  Design and implementation guidance for maintainable Rust CLIs with strong ergonomics,
+  machine-friendly behavior, testable structure, and release automation.
+  Use when creating or refactoring a Rust command-line tool, choosing crates like clap/anyhow/tracing/serde_json,
+  improving command UX, adding JSON output, tightening test/release workflows, or making an existing CLI safer for
+  agents and automation.
 ---
 
 # rust-cli - Build Maintainable Rust CLIs

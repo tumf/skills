@@ -15,23 +15,55 @@ npx skills add tumf/skills --skill jp-grants
 
 ## Available Skills
 
-### firecrawl
+<!-- skills:start -->
 
-Web scraping and data extraction toolkit.
+### agentic-cli-design
 
-[Documentation](./firecrawl/README.md)
+Design principles for building CLI tools that LLM/AI agents can safely and reliably operate. Provides 7 core principles (Machine-readable, Non-interactive, Idempotent, Safe-by-default, Observable, Context-efficient, Introspectable) with scorecard, templates, and anti-patterns.
+
+[Documentation](./agentic-cli-design/README.md)
 
 ### clawdbot-config
 
-Comprehensive Clawdbot configuration and skills system management skill.
+Comprehensive Clawdbot configuration and skills system management.
 
 [Documentation](./clawdbot-config/README.md)
 
-### opencode-command-creator
+### fermi-estimation
 
-Create custom OpenCode commands with proper structure and configuration.
+Solve user questions with defensible Fermi estimates using explicit assumptions, source-backed inputs, uncertainty ranges, and sensitivity analysis.
 
-[Documentation](./opencode-command-creator/README.md)
+[Documentation](./fermi-estimation/README.md)
+
+### firecrawl
+
+Comprehensive web scraping, crawling, and data extraction toolkit powered by Firecrawl API. Provides scripts for single-page scraping (scrape.py), web search (search.py), URL discovery (map.py), multi-page crawling (crawl.py), structured data extraction (extract.py), and autonomous data gathering (agent.py).
+
+[Documentation](./firecrawl/README.md)
+
+### gogcli
+
+Fast, script-friendly CLI for Google Workspace and Gmail.
+
+[Documentation](./gogcli/README.md)
+
+### greats-soul-archive-contributor
+
+Contribute new profiles to tumf/greats-soul-archive.
+
+[Documentation](./greats-soul-archive-contributor/README.md)
+
+### jp-grants
+
+Collect and answer questions about Japanese subsidies/grants (補助金・助成金) with up-to-date sources.
+
+[Documentation](./jp-grants/README.md)
+
+### openclaw-agent-creator
+
+Create and maintain OpenClaw agent workspaces using the "Memory as Documentation" layout.
+
+[Documentation](./openclaw-agent-creator/README.md)
 
 ### opencode-agent-creator
 
@@ -39,11 +71,41 @@ Create specialized OpenCode agents with proper configuration for primary agents 
 
 [Documentation](./opencode-agent-creator/README.md)
 
-### openclaw-agent-creator
+### opencode-command-creator
 
-Create and maintain OpenClaw agent workspaces (bootstrap files + memory layout).
+Create custom OpenCode commands with proper structure, trigger descriptions, arguments, and configuration.
 
-[Documentation](./openclaw-agent-creator/README.md)
+[Documentation](./opencode-command-creator/README.md)
+
+### openspec-brownfield-baseline
+
+Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development.
+
+[Documentation](./openspec-brownfield-baseline/README.md)
+
+### oss-publish
+
+Open source publication and release hygiene for repositories and CLIs (language-agnostic): choose and add LICENSE, prepare README/CONTRIBUTING/SECURITY/CODE_OF_CONDUCT, standardize versioning/tags/releases and release notes, set up CI matrices, quality gates (pre-commit/pre-push), and safe-by-default automation/bootstrapping.
+
+[Documentation](./oss-publish/README.md)
+
+### product-improvement-proposal
+
+Propose concrete, high-leverage product/UX improvements to increase a software project's appeal and retention.
+
+[Documentation](./product-improvement-proposal/README.md)
+
+### python-uv-project
+
+Scaffold opinionated Python projects with uv as the package/project manager and `uv init` as the bootstrap step.
+
+[Documentation](./python-uv-project/README.md)
+
+### rust-cli
+
+Design and implementation guidance for maintainable Rust CLIs with strong ergonomics, machine-friendly behavior, testable structure, and release automation.
+
+[Documentation](./rust-cli/README.md)
 
 ### slack-rs
 
@@ -51,47 +113,7 @@ Slack Web API automation via the slack-rs CLI (Rust).
 
 [Documentation](./slack-rs/README.md)
 
-### rust-cli
-
-General guidance and templates for building Rust CLI programs (clap/anyhow/tracing/serde_json), including prek-based git hooks.
-
-[Documentation](./rust-cli/README.md)
-
-### python-uv-project
-
-Opinionated Python project bootstrap guidance built around `uv init`, git, `prek`, Makefile quality targets, Pydantic, and Hatch version bumps.
-
-[Documentation](./python-uv-project/README.md)
-
-### product-improvement-proposal
-
-Propose high-leverage product/UX improvements grounded in repo evidence, with prioritized MVP plans.
-
-[Documentation](./product-improvement-proposal/README.md)
-
-### greats-soul-archive-contributor
-
-Contribute profiles to tumf/greats-soul-archive (scaffold IDENTITY/SOUL/sources/meta + rebuild index).
-
-[Documentation](./greats-soul-archive-contributor/README.md)
-
-### jp-grants
-
-Collect and answer questions about Japanese subsidies/grants (補助金・助成金) using up-to-date sources.
-
-[Documentation](./jp-grants/README.md)
-
-### fermi-estimation
-
-Solve quantitative questions with source-backed Fermi estimates, explicit assumptions, uncertainty ranges, and sanity checks.
-
-[Documentation](./fermi-estimation/README.md)
-
-### openspec-brownfield-baseline
-
-Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development.
-
-[Documentation](./openspec-brownfield-baseline/README.md)
+<!-- skills:end -->
 
 ---
 

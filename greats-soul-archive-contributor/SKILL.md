@@ -1,6 +1,6 @@
 ---
 name: greats-soul-archive-contributor
-description: "Contribute new profiles to tumf/greats-soul-archive. Use when user says they want to add/post/submit a new person/character profile, open a PR, scaffold IDENTITY.md/SOUL.md/sources.md, add meta.yml (category/tags), run scripts/build_index.py, or follow the repo contribution rules."
+description: "Contribute new profiles to tumf/greats-soul-archive. Use when the user wants to add, submit, or open a PR for a new person/character profile, scaffold IDENTITY.md/SOUL.md/sources.md, add meta.yml (category/tags), run scripts/build_index.py, or follow the repo's contribution rules."
 ---
 
 # Greats Soul Archive Contributor

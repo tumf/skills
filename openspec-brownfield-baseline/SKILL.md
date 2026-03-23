@@ -1,6 +1,6 @@
 ---
 name: openspec-brownfield-baseline
-description: Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development.
+description: Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development. Use when a project already has substantial implementation but no trustworthy spec baseline, when the user wants to bootstrap `openspec/specs/` from current behavior, or when a team needs to capture present-day contracts before making further changes.
 ---
 
 # OpenSpec Brownfield Baseline
