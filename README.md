@@ -87,6 +87,12 @@ Solve quantitative questions with source-backed Fermi estimates, explicit assump
 
 [Documentation](./fermi-estimation/README.md)
 
+### openspec-brownfield-baseline
+
+Introduce OpenSpec into an existing codebase by deriving baseline specs from current behavior, then switch future work to change-driven development.
+
+[Documentation](./openspec-brownfield-baseline/README.md)
+
 ---
 
 *More skills coming soon...*
