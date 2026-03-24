@@ -23,6 +23,12 @@ Design principles for building CLI tools that LLM/AI agents can safely and relia
 
 [Documentation](./agentic-cli-design/README.md)
 
+### autoresearch-agent
+
+Delegate autoresearch tasks to a headless Claude Code sub-agent process.
+
+[Documentation](./autoresearch-agent/README.md)
+
 ### clawdbot-config
 
 Comprehensive Clawdbot configuration and skills system management.
@@ -112,6 +118,12 @@ Design and implementation guidance for maintainable Rust CLIs with strong ergono
 Slack Web API automation via the slack-rs CLI (Rust).
 
 [Documentation](./slack-rs/README.md)
+
+### youtube-summarizer
+
+Summarize YouTube videos by extracting and analyzing auto-generated subtitles.
+
+[Documentation](./youtube-summarizer/README.md)
 
 <!-- skills:end -->
 
