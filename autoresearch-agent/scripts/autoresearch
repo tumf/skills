@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# autoresearch — headless CLI wrapper for Claude Code autoresearch skill
+#
+# Translates:  autoresearch ship --auto
+#       into:  claude --dangerously-skip-permissions -p "/autoresearch:ship --auto"
+#
+# Usage:
+#   autoresearch [subcommand] [flags/args...]
+#   autoresearch ship --auto
+#   autoresearch security --diff --fail-on critical
+#   autoresearch plan "Increase test coverage to 90%"
+#   autoresearch fix --guard "npm test"
+#   autoresearch "Goal: improve coverage" --iterations 10
+#
+# Environment:
+#   CLAUDE_BIN        Path to claude binary (default: claude)
+#   CLAUDE_EXTRA_ARGS Extra arguments passed to claude (space-separated)
+#   AUTORESEARCH_DRY_RUN  If set to 1, print the command instead of executing
+
+set -euo pipefail
+
+VERSION="0.1.0"
+
+CLAUDE_BIN="${CLAUDE_BIN:-claude}"
+CLAUDE_EXTRA_ARGS="${CLAUDE_EXTRA_ARGS:-}"
+AUTORESEARCH_DRY_RUN="${AUTORESEARCH_DRY_RUN:-0}"
+
+# Known subcommands (from autoresearch skill)
+SUBCOMMANDS="ship plan security debug fix scenario predict learn"
+
+usage() {
+  cat <<'EOF'
+autoresearch — headless CLI wrapper for Claude Code autoresearch skill
+
+USAGE:
+  autoresearch [subcommand] [flags/args...]
+
+SUBCOMMANDS:
+  (none)      Run the main /autoresearch autonomous loop
+  ship        Universal shipping workflow (code, content, marketing, etc.)
+  plan        Goal → Config wizard
+  security    Autonomous STRIDE + OWASP security audit
+  debug       Autonomous bug-hunting loop
+  fix         Autonomous error-fixing loop
+  scenario    Scenario-driven use case generator
+  predict     Multi-persona swarm prediction
+  learn       Autonomous codebase documentation engine
+
+FLAGS:
+  -h, --help      Show this help
+  -v, --version   Show version
+  -n, --dry-run   Print the claude command without executing
+
+EXAMPLES:
+  autoresearch ship --auto
+  autoresearch security --diff --fail-on critical
+  autoresearch plan "Increase test coverage to 90%"
+  autoresearch fix --guard "npm test"
+  autoresearch "Goal: improve coverage" --iterations 10
+  autoresearch debug --scope "src/**/*.ts" --symptom "API 500 errors"
+
+ENVIRONMENT:
+  CLAUDE_BIN          Path to claude binary (default: claude)
+  CLAUDE_EXTRA_ARGS   Extra arguments passed to claude (space-separated)
+  AUTORESEARCH_DRY_RUN  Set to 1 to print command without executing
+EOF
+}
+
+die() {
+  echo "autoresearch: error: $*" >&2
+  exit 1
+}
+
+# Check if a string is a known subcommand
+is_subcommand() {
+  local cmd="$1"
+  for sub in $SUBCOMMANDS; do
+    [[ "$cmd" == "$sub" ]] && return 0
+  done
+  return 1
+}
+
+# --- Argument parsing ---
+
+# Handle top-level flags before subcommand
+case "${1:-}" in
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  -v|--version)
+    echo "autoresearch $VERSION"
+    exit 0
+    ;;
+  -n|--dry-run)
+    AUTORESEARCH_DRY_RUN=1
+    shift
+    ;;
+esac
+
+# Determine the prompt to send to Claude
+if [[ $# -eq 0 ]]; then
+  # No arguments — run base /autoresearch (interactive setup will kick in)
+  PROMPT="/autoresearch"
+elif is_subcommand "${1:-}"; then
+  # First arg is a known subcommand
+  SUBCMD="$1"
+  shift
+  # Remaining args become the prompt arguments
+  if [[ $# -gt 0 ]]; then
+    PROMPT="/autoresearch:${SUBCMD} $*"
+  else
+    PROMPT="/autoresearch:${SUBCMD}"
+  fi
+else
+  # No subcommand — pass everything as args to base /autoresearch
+  PROMPT="/autoresearch $*"
+fi
+
+# Verify claude binary exists
+if ! command -v "$CLAUDE_BIN" &>/dev/null; then
+  die "claude binary not found. Set CLAUDE_BIN or ensure 'claude' is in PATH."
+fi
+
+# Build the command
+CMD=("$CLAUDE_BIN" --dangerously-skip-permissions -p "$PROMPT")
+
+# Append extra args if set
+if [[ -n "$CLAUDE_EXTRA_ARGS" ]]; then
+  # shellcheck disable=SC2206
+  CMD+=($CLAUDE_EXTRA_ARGS)
+fi
+
+# Execute or dry-run
+if [[ "$AUTORESEARCH_DRY_RUN" == "1" ]]; then
+  printf '+ '
+  printf '%q ' "${CMD[@]}"
+  printf '\n'
+  exit 0
+fi
+
+exec "${CMD[@]}"
