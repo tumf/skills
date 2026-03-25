@@ -13,7 +13,7 @@ npx skills add tumf/skills --skill autoresearch-agent
 ## Prerequisites
 
 - `claude` CLI in PATH (or set `CLAUDE_BIN`)
-- The [autoresearch](https://github.com/anthropics/claude-code/tree/main/.agent/skills/autoresearch) skill installed in the target project or globally
+- The [autoresearch](https://github.com/uditgoenka/autoresearch) skill installed in the target project or globally
 
 ## Usage
 
