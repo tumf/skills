@@ -1,0 +1,46 @@
+# .wt Directory - Worktree Setup
+
+## Overview
+
+This repository includes a `.wt/` directory for worktree-related scripts.
+
+- The **wt** tool (and other tools that follow the `.wt/setup` convention) may create
+  worktrees under `~/.wt/worktrees/` and place symlinks in `.wt/worktrees/`.
+- Supporting tools execute `.wt/setup` from the repository root after creating a worktree.
+
+Important: Tools MUST NOT read user-global setup scripts.
+
+## Directory Structure
+
+```
+.wt/
+  AGENTS.md          # This file
+  setup              # Bootstrap script executed in new worktrees
+  setup.local        # Local overrides (gitignored)
+  worktrees/         # Symlinks to actual worktrees (gitignored, created by wt)
+```
+
+## Setup Script
+
+### `.wt/setup`
+
+If `.wt/setup` exists, it MAY be executed after creating a new worktree.
+
+- Execution context: the new worktree directory (current working directory is the worktree)
+- Environment variables:
+  - `ROOT_WORKTREE_PATH`: path to the base repository (source tree)
+
+The script SHOULD be idempotent (safe to run multiple times) and SHOULD avoid slow operations.
+
+### `.wt/setup.local`
+
+Optional local-only overrides.
+
+- This file SHOULD be gitignored.
+- Because it is gitignored, it does NOT exist in worktrees.
+- `.wt/setup` sources it via `ROOT_WORKTREE_PATH` (the base repository path).
+
+## References
+
+- wt tool: https://github.com/tumf/wt
+- Git worktree docs: https://git-scm.com/docs/git-worktree

@@ -119,6 +119,12 @@ Slack Web API automation via the slack-rs CLI (Rust).
 
 [Documentation](./slack-rs/README.md)
 
+### wt-setup
+
+Create and maintain `.wt/setup` bootstrap scripts for git worktree environments. The `.wt/setup` script is a repository-local convention executed automatically by supporting tools (e.g. wt) when creating new git worktrees.
+
+[Documentation](./wt-setup/README.md)
+
 ### youtube-summarizer
 
 Summarize YouTube videos by extracting and analyzing auto-generated subtitles.
