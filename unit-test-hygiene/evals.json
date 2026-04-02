@@ -1,0 +1,23 @@
+{
+  "skill_name": "unit-test-hygiene",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "この repo の unit test を棚卸しして。廃止機能向けの不要テスト、重複、API や DB を直接叩いている hidden integration を洗い出し、削除・統合・mock化・integration test への移管の4分類で整理して。",
+      "expected_output": "不要・重複・外部依存混入の分類と優先度付き改善計画があること。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "pytest のテスト群を見て、time.sleep や datetime.now、subprocess、os.environ に直接依存している unit test を特定して。どこを fake/stub/mock にすべきか、どこは integration test として残すべきかまで出して。",
+      "expected_output": "時間・プロセス・環境変数依存の指摘と、mock/fake/移管方針が出ること。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Jest/Vitest の test が増えすぎたので整理したい。重複している describe/it、実装詳細に結びつきすぎた assertion、実URLや本物DBを触っている test をまとめて監査して、優先度順の cleanup plan を作って。",
+      "expected_output": "JS/TS テスト群向けに、重複・冗長・外部依存混入をまとめた cleanup plan が出ること。",
+      "files": []
+    }
+  ]
+}
