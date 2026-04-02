@@ -119,6 +119,12 @@ Slack Web API automation via the slack-rs CLI (Rust).
 
 [Documentation](./slack-rs/README.md)
 
+### unit-test-hygiene
+
+Audit and reorganize an existing test suite to remove outdated tests, reduce duplication, and isolate external dependencies from unit tests.
+
+[Documentation](./unit-test-hygiene/README.md)
+
 ### wt-setup
 
 Create and maintain `.wt/setup` bootstrap scripts for git worktree environments. The `.wt/setup` script is a repository-local convention executed automatically by supporting tools (e.g. wt) when creating new git worktrees.
