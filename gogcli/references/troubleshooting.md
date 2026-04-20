@@ -2,112 +2,167 @@
 
 ## Common Issues and Solutions
 
-### "Access blocked: app has not completed Google verification process"
+### "Access blocked" or unverified app during OAuth
 
-**Cause**: User is not added as test user in OAuth consent screen.
-
-**Solution**:
-1. Open OAuth consent screen: https://console.cloud.google.com/apis/credentials/consent
-2. Scroll to "Test users" section
-3. Click "ADD USERS"
-4. Add your Gmail address
-5. Save and retry authentication
-
-### "API not enabled"
-
-**Cause**: Required API not enabled for the project.
+**Cause**: The OAuth app is in testing and your account is not listed as a test user.
 
 **Solution**:
-```bash
-# Enable specific API
-gcloud services enable gmail.googleapis.com --project=PROJECT_ID
-
-# Or use setup script
-bash "$SKILL_ROOT/scripts/setup_gcloud_project.sh" PROJECT_ID
-```
+1. Open branding: https://console.cloud.google.com/auth/branding
+2. Open audience: https://console.cloud.google.com/auth/audience
+3. Add your Google account as a test user
+4. Retry `gog auth add ...`
 
 ### "No OAuth client credentials stored"
 
-**Cause**: OAuth client credentials not registered with gog.
+**Cause**: You have not stored a Desktop OAuth client JSON in `gog` yet.
 
 **Solution**:
-1. Download credentials JSON from Google Cloud Console
-2. Validate: `bash "$SKILL_ROOT/scripts/validate_credentials.sh" ~/Downloads/client_secret_*.json`
-3. Register: `gog auth credentials ~/Downloads/client_secret_*.json`
+1. Download the Desktop OAuth client JSON from https://console.cloud.google.com/auth/clients
+2. Validate it if needed:
+   ```bash
+   bash "$SKILL_ROOT/scripts/validate_credentials.sh" ~/Downloads/client_secret_*.json
+   ```
+3. Register it:
+   ```bash
+   gog auth credentials ~/Downloads/client_secret_*.json
+   ```
 
 ### "Invalid client credentials"
 
-**Cause**: Wrong credentials file format or corrupted download.
+**Cause**: Wrong file type, malformed JSON, or a corrupted download.
 
 **Solution**:
-1. Re-download credentials from Console
-2. Ensure file type is "Desktop app"
-3. Validate with script: `bash "$SKILL_ROOT/scripts/validate_credentials.sh" FILE`
+1. Re-download the credentials file
+2. Ensure it is a **Desktop app** OAuth client
+3. Validate with the helper script
 
-### "Token refresh failed"
+### "API not enabled"
 
-**Cause**: Revoked or expired refresh token.
+**Cause**: The target Google API is not enabled in the Cloud project used by your OAuth client.
 
 **Solution**:
 ```bash
-# Re-authenticate with force consent
-gog auth add user@gmail.com --force-consent
+bash "$SKILL_ROOT/scripts/setup_gcloud_project.sh" PROJECT_ID
 ```
 
-### "Keychain prompts on macOS"
+Or enable the required API directly in Cloud Console.
 
-**Cause**: Different binary paths treated as different apps by Keychain.
+### "403 insufficient permissions"
 
-**Solutions**:
-1. Use stable binary path (recommended)
-2. Switch to file backend: `gog auth keyring file`
-3. Set password env: `export GOG_KEYRING_PASSWORD=...`
-
-### "403 Insufficient Permission"
-
-**Cause**: Missing required OAuth scopes.
+**Cause**: Missing OAuth scopes or token was created with narrower access than the command requires.
 
 **Solution**:
 ```bash
-# Re-authenticate with all services
+# Broad user services
 gog auth add user@gmail.com --services user --force-consent
 
-# Or specific service
+# Or a targeted re-auth
 gog auth add user@gmail.com --services gmail,calendar --force-consent
+
+# Examples of explicit narrow scopes
+gog auth add user@gmail.com --services drive --drive-scope readonly
+gog auth add user@gmail.com --services gmail --gmail-scope readonly
 ```
 
-### "Project quota exceeded"
+### Refresh token not updated after adding scopes
 
-**Cause**: Too many API requests.
+**Cause**: Google may not reissue a refresh token unless consent is forced.
 
-**Solutions**:
-1. Check quota in Cloud Console: https://console.cloud.google.com/apis/dashboard
-2. Request quota increase if needed
-3. Use different OAuth client for different accounts
+**Solution**:
+```bash
+gog auth add user@gmail.com --services sheets --force-consent
+```
 
-## Testing Authentication
+### Headless / remote machine cannot complete browser auth
 
-After setup, verify with these commands:
+**Cause**: No local browser or callback cannot reach the machine.
+
+**Solution**:
+Use one of these flows:
 
 ```bash
-# List accounts
+# Manual flow
+gog auth add you@gmail.com --services user --manual
+
+# Two-step remote flow
+gog auth add you@gmail.com --services user --remote --step 1
+gog auth add you@gmail.com --services user --remote --step 2 --auth-url 'http://127.0.0.1:<port>/oauth2/callback?code=...&state=...'
+
+# Reverse proxy / tunnel callback
+gog auth add you@gmail.com --listen-addr 0.0.0.0:8080 --redirect-host gog.example.com
+```
+
+### Keychain prompts repeatedly on macOS
+
+**Cause**: macOS Keychain treats different binary paths as different apps.
+
+**Solutions**:
+1. Use a stable `gog` binary path
+2. Force keychain backend:
+   ```bash
+   export GOG_KEYRING_BACKEND=keychain
+   ```
+3. Or switch to encrypted file backend:
+   ```bash
+   gog auth keyring file
+   export GOG_KEYRING_PASSWORD='...'
+   ```
+
+### Workspace service account commands fail
+
+**Cause**: Domain-wide delegation is incomplete, wrong scopes are allowlisted, or the account is not configured.
+
+**Check**:
+1. Service account exists and has domain-wide delegation enabled
+2. Required scopes are allowlisted in Admin Console
+3. The key is registered in `gog`
+
+```bash
+gog auth service-account set you@yourdomain.com --key ~/Downloads/service-account.json
+gog --account you@yourdomain.com auth status
 gog auth list
+```
 
-# Check auth status
+### Keep / Admin / Groups not working on consumer Gmail
+
+**Cause**: These commands depend on Google Workspace capabilities.
+
+**Solution**:
+- Use a Workspace account where required
+- For Keep/Admin, configure service account + domain-wide delegation
+- For Groups, enable Cloud Identity API and grant the needed scope
+
+### Gmail watch webhook issues
+
+**Cause**: Pub/Sub push auth, callback routing, or Gmail history timing.
+
+**Checks**:
+```bash
+gog gmail watch status
+gog gmail watch renew
+gog gmail history --since <historyId>
+```
+
+Notes:
+- `watch serve --fetch-delay` defaults to `3s` upstream and helps avoid Gmail History indexing races.
+- `watch serve --exclude-labels` defaults to `SPAM,TRASH`.
+- See upstream watch docs: https://github.com/steipete/gogcli/blob/main/docs/watch.md
+
+## Safe verification commands
+
+After setup, verify with harmless reads first:
+
+```bash
 gog auth status
-
-# Test Gmail access
+gog auth list
 gog gmail labels list
-
-# Test Calendar access
 gog calendar calendars
-
-# Test Drive access
 gog drive ls --max 5
 ```
 
 ## Getting Help
 
 - GitHub Issues: https://github.com/steipete/gogcli/issues
-- Documentation: https://github.com/steipete/gogcli/blob/main/README.md
-- Auth documentation: See `docs/auth-clients.md` in repository
+- Upstream README: https://github.com/steipete/gogcli/blob/main/README.md
+- Upstream auth clients doc: https://github.com/steipete/gogcli/blob/main/docs/auth-clients.md
+- Upstream watch doc: https://github.com/steipete/gogcli/blob/main/docs/watch.md

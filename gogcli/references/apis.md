@@ -1,6 +1,6 @@
 # Google APIs and Scopes Reference
 
-## Required APIs by Service
+## Common Google Cloud APIs
 
 | Service | API | Console Link |
 |---------|-----|--------------|
@@ -8,18 +8,25 @@
 | Calendar | Google Calendar API | https://console.cloud.google.com/apis/api/calendar-json.googleapis.com |
 | Chat | Google Chat API | https://console.cloud.google.com/apis/api/chat.googleapis.com |
 | Drive | Google Drive API | https://console.cloud.google.com/apis/api/drive.googleapis.com |
-| Classroom | Google Classroom API | https://console.cloud.google.com/apis/api/classroom.googleapis.com |
-| Contacts | People API | https://console.cloud.google.com/apis/api/people.googleapis.com |
-| Tasks | Google Tasks API | https://console.cloud.google.com/apis/api/tasks.googleapis.com |
+| Docs | Google Docs API | https://console.cloud.google.com/apis/api/docs.googleapis.com |
+| Slides | Google Slides API | https://console.cloud.google.com/apis/api/slides.googleapis.com |
 | Sheets | Google Sheets API | https://console.cloud.google.com/apis/api/sheets.googleapis.com |
+| Forms | Google Forms API | https://console.cloud.google.com/apis/api/forms.googleapis.com |
+| Apps Script | Apps Script API | https://console.cloud.google.com/apis/api/script.googleapis.com |
+| Classroom | Google Classroom API | https://console.cloud.google.com/apis/api/classroom.googleapis.com |
+| Contacts / People | People API | https://console.cloud.google.com/apis/api/people.googleapis.com |
+| Tasks | Google Tasks API | https://console.cloud.google.com/apis/api/tasks.googleapis.com |
 | Groups | Cloud Identity API | https://console.cloud.google.com/apis/api/cloudidentity.googleapis.com |
+| Admin | Admin SDK API | https://console.cloud.google.com/apis/api/admin.googleapis.com |
+| Keep | Google Keep API | https://console.cloud.google.com/apis/api/keep.googleapis.com |
 
-## OAuth Scopes by Service
+## Typical OAuth scopes by service
 
 ### Gmail
 - `https://www.googleapis.com/auth/gmail.modify`
 - `https://www.googleapis.com/auth/gmail.settings.basic`
 - `https://www.googleapis.com/auth/gmail.settings.sharing`
+- Read-only option: `--gmail-scope readonly`
 
 ### Calendar
 - `https://www.googleapis.com/auth/calendar`
@@ -44,10 +51,19 @@
 
 ### Drive
 - `https://www.googleapis.com/auth/drive`
+- Narrower options: `--drive-scope readonly`, `--drive-scope file`
 
 ### Docs
 - `https://www.googleapis.com/auth/drive`
 - `https://www.googleapis.com/auth/documents`
+
+### Slides
+- `https://www.googleapis.com/auth/drive`
+- `https://www.googleapis.com/auth/presentations`
+
+### Sheets
+- `https://www.googleapis.com/auth/drive`
+- `https://www.googleapis.com/auth/spreadsheets`
 
 ### Contacts
 - `https://www.googleapis.com/auth/contacts`
@@ -57,29 +73,49 @@
 ### Tasks
 - `https://www.googleapis.com/auth/tasks`
 
-### Sheets
-- `https://www.googleapis.com/auth/drive`
-- `https://www.googleapis.com/auth/spreadsheets`
-
 ### People
-- `profile` (OIDC profile scope)
+- `profile`
+
+### Forms
+- `https://www.googleapis.com/auth/forms.body`
+- `https://www.googleapis.com/auth/forms.responses.readonly`
+
+### Apps Script
+- `https://www.googleapis.com/auth/script.projects`
+- `https://www.googleapis.com/auth/script.deployments`
+- `https://www.googleapis.com/auth/script.processes`
 
 ### Groups (Workspace only)
 - `https://www.googleapis.com/auth/cloud-identity.groups.readonly`
 
-## Minimal Setup (Core Services)
+### Keep (Workspace only)
+- `https://www.googleapis.com/auth/keep`
+- Typically used via service account + domain-wide delegation
 
-For basic gogcli usage, enable these APIs:
+### Admin (Workspace only)
+- `https://www.googleapis.com/auth/admin.directory.user`
+- `https://www.googleapis.com/auth/admin.directory.group`
+- `https://www.googleapis.com/auth/admin.directory.group.member`
+- Requires service account with domain-wide delegation
+
+## Minimal setup for common agent usage
+
+For the most common read-only automation flows, start with:
+
 - Gmail API
 - Google Calendar API
 - Google Drive API
 - People API
 
-## Service Account Setup (Workspace Only)
+## Workspace-only setup reminder
 
-For Google Workspace with domain-wide delegation:
-1. Create service account in Google Cloud Console
-2. Enable domain-wide delegation
-3. Download JSON key
-4. Configure in Workspace Admin Console
-5. Register with gog: `gog auth service-account set user@domain.com --key key.json`
+For Keep, Admin, and many Workspace automation flows:
+
+1. Create a service account in Google Cloud.
+2. Enable domain-wide delegation.
+3. Allowlist the exact OAuth scopes in Google Workspace Admin Console.
+4. Register the key with:
+
+```bash
+gog auth service-account set user@domain.com --key key.json
+```

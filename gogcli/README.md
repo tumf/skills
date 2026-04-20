@@ -1,84 +1,52 @@
 # gogcli
 
-Agent skill for Google Workspace and Gmail automation using the `gog` / `gogcli` command-line tool.
+Agent skill for Google Workspace automation using the `gog` CLI from `steipete/gogcli`.
 
-This directory contains the skill instructions plus helper scripts and reference docs for setting up OAuth, enabling APIs, and using Google Workspace services from automation.
+This skill is aligned to the upstream project README and focuses on safe, scriptable usage for agents.
 
 ## Installation
 
-Recommended:
-
-```bash
-npx skills add tumf/skills --skill gogcli
-```
-
-Alternative: load the skill file directly in your agent configuration:
-
-```jsonc
-{
-  "instructions": [
-    "path/to/gogcli/SKILL.md"
-  ]
-}
-```
+See `gogcli/references/installation.md`.
 
 ## What This Skill Covers
 
-Use this skill when an agent needs to automate or inspect Google Workspace services such as:
+Use this skill whenever an agent needs to automate or inspect Google services from the terminal, especially in scriptable or multi-step workflows such as:
 
-- Gmail: search, read, send, label, filter, download attachments
-- Calendar: list, search, create, and update events
-- Drive: upload, download, organize, and inspect files
-- Docs / Sheets / Slides: read, write, and export content
-- Contacts, Tasks, Chat, Classroom, Groups, and Keep
+- Gmail: search, read, send, labels, drafts, filters, tracking, watch webhooks
+- Calendar: list/search/create/update/delete events, invitations, free/busy, team calendars
+- Drive: list/search/upload/download/share/organize files and shared drives
+- Docs / Sheets / Slides: create, copy, export, and structured edits
+- Contacts / People / Tasks
+- Chat, Classroom, Forms, Apps Script
+- Groups, Admin, Keep for Google Workspace environments
+- Multi-account auth, named OAuth clients, service accounts, command allowlists
 
-The skill is optimized for scriptable workflows, JSON-first output, multi-account usage, and least-privilege authentication.
+The skill is optimized for JSON-first automation, multiple accounts, flexible auth, and least-privilege access.
 
 ## Prerequisites
 
-Install the CLI and verify it is available on the machine where the agent runs.
-
-Typical setup paths:
-
-```bash
-# Homebrew
-brew install steipete/tap/gogcli
-
-# Verify install
-which gog || which gogcli
-```
-
-You will also need:
-
-- `gcloud` CLI
-- A Google account (Gmail or Google Workspace)
-- A Google Cloud project with the relevant APIs enabled
-- OAuth desktop credentials for the target account(s)
+See `gogcli/references/installation.md`, `gogcli/references/oauth.md`, and `gogcli/references/apis.md`.
 
 ## Included Files
 
 - `gogcli/SKILL.md` — main skill instructions and usage patterns
+- `gogcli/references/installation.md` — installation and bootstrap reference
+- `gogcli/references/oauth.md` — OAuth and authentication reference
 - `gogcli/references/apis.md` — API/service enablement reference
 - `gogcli/references/commands.md` — command reference and examples
 - `gogcli/references/troubleshooting.md` — common auth/setup failure modes
-- `gogcli/scripts/setup_gcloud_project.sh` — helper to enable required Google APIs
+- `gogcli/scripts/setup_gcloud_project.sh` — helper to enable Google APIs
 - `gogcli/scripts/validate_credentials.sh` — sanity check for downloaded OAuth client JSON
 
 ## Quick Start
 
-1. Set up or select a Google Cloud project.
-2. Enable the required APIs.
-3. Configure the OAuth consent screen.
-4. Create a desktop OAuth client.
-5. Add the credentials file to `gog`.
-6. Authorize the desired Google account.
-7. Test with a harmless read-only command.
+1. Follow `gogcli/references/installation.md`.
+2. Follow `gogcli/references/oauth.md`.
+3. Test with a harmless read-only command.
 
 Example:
 
 ```bash
-bash "$SKILL_ROOT/scripts/setup_gcloud_project.sh" PROJECT_ID
-
 gog auth credentials ~/Downloads/client_secret_*.json
 gog auth add you@gmail.com
 
@@ -93,6 +61,7 @@ Start with read-only discovery commands before performing writes like sending em
 Good first checks:
 
 ```bash
+gog auth status
 gog gmail labels list
 gog calendar calendars
 gog drive ls --max 5
