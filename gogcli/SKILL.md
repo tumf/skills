@@ -33,10 +33,13 @@ Minimal happy path:
 gog auth credentials ~/Downloads/client_secret_*.json
 gog auth add you@gmail.com
 
+gog auth list
 export GOG_ACCOUNT=you@gmail.com
 gog auth status
 gog gmail labels list
 ```
+
+`gog auth status` only shows the current/selected account context. To confirm which accounts are authenticated at all, check `gog auth list`.
 
 ## Authentication Model
 

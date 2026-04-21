@@ -84,12 +84,15 @@ gog --access-token "$(gcloud auth print-access-token)" gmail labels list
 ## 4. Test auth safely
 
 ```bash
+gog auth list
 export GOG_ACCOUNT=you@gmail.com
 gog auth status
 gog gmail labels list
 gog calendar calendars
 gog drive ls --max 5
 ```
+
+Use `gog auth list` to verify authenticated accounts. `gog auth status` only reports the active account context.
 
 ## Multiple accounts
 

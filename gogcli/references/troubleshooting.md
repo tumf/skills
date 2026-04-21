@@ -153,12 +153,14 @@ Notes:
 After setup, verify with harmless reads first:
 
 ```bash
-gog auth status
 gog auth list
+gog auth status
 gog gmail labels list
 gog calendar calendars
 gog drive ls --max 5
 ```
+
+If `gog auth status` looks unauthenticated, confirm with `gog auth list` first. `status` is about the active account context, not the full authenticated-account inventory.
 
 ## Getting Help
 

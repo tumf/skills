@@ -15,9 +15,10 @@ gog auth add <email> --services drive,calendar --readonly
 gog auth add <email> --services gmail --gmail-scope readonly
 gog auth add <email> --listen-addr 0.0.0.0:8080 --redirect-host gog.example.com
 
-gog auth status
+gog auth status        # current/selected account context
 gog auth services
-gog auth list
+gog auth list          # all authenticated accounts
+gog auth list --check  # validate stored auth entries
 gog auth list --check
 gog auth remove <email>
 

@@ -50,9 +50,12 @@ Example:
 gog auth credentials ~/Downloads/client_secret_*.json
 gog auth add you@gmail.com
 
+gog auth list
 export GOG_ACCOUNT=you@gmail.com
 gog gmail labels list
 ```
+
+Use `gog auth list` to verify which accounts are authenticated. `gog auth status` is only for the currently selected account context.
 
 ## Recommended Safety Pattern
 
