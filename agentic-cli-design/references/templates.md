@@ -7,10 +7,11 @@ This document provides concrete templates and examples for implementing the 7 pr
 1. [JSON Response Formats](#json-response-formats)
 2. [Exit Code Conventions](#exit-code-conventions)
 3. [Introspection Commands](#introspection-commands)
-4. [Authentication Patterns](#authentication-patterns)
-5. [Error Handling](#error-handling)
-6. [Pagination Patterns](#pagination-patterns)
-7. [Command Line Flags](#command-line-flags)
+4. [Skill Installation](#skill-installation)
+5. [Authentication Patterns](#authentication-patterns)
+6. [Error Handling](#error-handling)
+7. [Pagination Patterns](#pagination-patterns)
+8. [Command Line Flags](#command-line-flags)
 
 ---
 
@@ -407,6 +408,41 @@ success_response({"id": "123", "status": "created"})
   }
 }
 ```
+
+## Skill Installation
+
+### `install-skills --json` Template
+
+```json
+{
+  "schemaVersion": 1,
+  "type": "introspection.install-skills",
+  "ok": true,
+  "data": {
+    "source": "./skills",
+    "mode": "agents",
+    "global": false,
+    "claude": false,
+    "destination": "./.agents/skills",
+    "installed": [
+      {
+        "name": "mycli",
+        "sourcePath": "./skills/mycli",
+        "destinationPath": "./.agents/skills/mycli"
+      }
+    ]
+  }
+}
+```
+
+Recommended behavior:
+
+- Installs only the CLI's own bundled skill source from `<project dir>/skills`
+- Does not fetch or install arbitrary external skills
+- Default destination: `./.agents/skills`
+- `--global`: `~/.agents/skills`
+- `--claude`: `./.claude/skills`
+- `--claude --global`: `~/.claude/skills`
 
 ### `--help --json` Template
 

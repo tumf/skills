@@ -192,7 +192,13 @@ For each checkbox:
   - Includes input and output schemas
   - Enables validation and code generation
 
-**Score**: _____ / 4 points
+- [ ] **`install-skills` exists for the CLI's own skill**
+  - Installs the CLI's bundled skill from `<project dir>/skills`
+  - Default destination is `./.agents/skills`
+  - Supports `--global`, `--claude`, and `--claude --global`
+  - Does not behave like a third-party skill marketplace installer
+
+**Score**: _____ / 6 points
 
 ---
 
@@ -206,8 +212,8 @@ For each checkbox:
 | P4. Safe-by-default | _____ | 4 |
 | P5. Observable & Debuggable | _____ | 8 |
 | P6. Context-efficient | _____ | 6 |
-| P7. Introspectable | _____ | 4 |
-| **TOTAL** | **_____** | **42** |
+| P7. Introspectable | _____ | 6 |
+| **TOTAL** | **_____** | **44** |
 
 ---
 
@@ -337,13 +343,14 @@ Use this template for detailed evaluation:
 
 ---
 
-#### P7. Introspectable (4 points)
+#### P7. Introspectable (6 points)
 
 | Item | Status | Points | Notes |
 |------|--------|--------|-------|
 | `commands --json` | ⬜ | ___/2 | |
 | `schema` export | ⬜ | ___/2 | |
-| **Subtotal** | | **___/4** | |
+| `install-skills` | ⬜ | ___/2 | |
+| **Subtotal** | | **___/6** | |
 
 **Issues**:
 - 
@@ -357,12 +364,12 @@ Use this template for detailed evaluation:
 
 ## Overall Assessment
 
-**Total Score**: _____ / 42 points
+**Total Score**: _____ / 44 points
 
 **Rating**: 
-- [ ] Excellent (36-42 points) - Agent-ready
-- [ ] Good (28-35 points) - Minor improvements needed
-- [ ] Fair (20-27 points) - Significant gaps
+- [ ] Excellent (38-44 points) - Agent-ready
+- [ ] Good (29-37 points) - Minor improvements needed
+- [ ] Fair (20-28 points) - Significant gaps
 - [ ] Poor (0-19 points) - Major redesign needed
 
 **Top 3 Strengths**:
@@ -415,7 +422,8 @@ Use this template for detailed evaluation:
 11. **No `--trace-id`** → Harder to debug
 12. **No `--log-format json`** → Manual log parsing
 13. **No `commands --json`** → Manual discovery
-14. **No `schemaVersion`** → Breaking changes harder to handle
+14. **No `install-skills`** → Agents cannot self-install the CLI's own usage skill
+15. **No `schemaVersion`** → Breaking changes harder to handle
 
 ---
 
@@ -423,7 +431,7 @@ Use this template for detailed evaluation:
 
 ### Example 1: GitHub CLI (`gh`)
 
-**Score**: 32/42 (Good)
+**Score**: 32/44 (Good)
 
 **Strengths**:
 - Excellent `--json` support across all commands
@@ -441,7 +449,7 @@ Use this template for detailed evaluation:
 
 ### Example 2: kubectl
 
-**Score**: 34/42 (Good)
+**Score**: 34/44 (Good)
 
 **Strengths**:
 - Strong idempotency (declarative apply)
@@ -459,7 +467,7 @@ Use this template for detailed evaluation:
 
 ### Example 3: AWS CLI
 
-**Score**: 28/42 (Good)
+**Score**: 28/44 (Good)
 
 **Strengths**:
 - Comprehensive `--output json`

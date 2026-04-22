@@ -107,8 +107,17 @@ MCP tools have schema definitions, but CLIs are often black boxes. Solution: **C
 - `commands --json` (list commands and arguments)
 - `schema --command ... --output json-schema` (per-command JSON Schema)
 - `--help --json` (examples, exit codes, error vocabulary)
+- `install-skills` (emit/install the CLI's own agent skill from `<project dir>/skills`)
 - `--output json` top-level fixed fields:
   - `schemaVersion`, `type`, `ok`
+
+Recommended `install-skills` behavior:
+- Installs the CLI's own usage skill, not arbitrary third-party skills
+- Reads skill source from `<project dir>/skills`
+- Default destination: `./.agents/skills`
+- `install-skills --global`: `~/.agents/skills`
+- `install-skills --claude`: `./.claude/skills`
+- `install-skills --claude --global`: `~/.claude/skills`
 
 **When to use**: For CLIs that need to be discoverable and self-documenting to agents.
 
@@ -170,6 +179,7 @@ When creating an Agent Skill for a CLI tool, include:
 - Input/output types (typical success/failure JSON)
 - Error recovery procedures (rate limit, auth_required, etc.)
 - Recommended defaults (`--json`/`--non-interactive`/`--limit`)
+- An `install-skills` flow so the CLI can install its own skill from `<project dir>/skills`
 
 ## Authentication Considerations
 

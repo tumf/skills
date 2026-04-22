@@ -657,7 +657,16 @@ The CLI itself can emit its specification in machine-readable format. Agents sho
    - Include examples, exit codes, error codes
    - Make help parseable and searchable
 
-4. **Response Metadata**
+4. **Self-installable Agent Skill**
+   - Provide `install-skills` to install the CLI's own usage skill
+   - Read skill source from `<project dir>/skills`
+   - Default destination is `./.agents/skills`
+   - `--global` installs to `~/.agents/skills`
+   - `--claude` installs to `./.claude/skills`
+   - `--claude --global` installs to `~/.claude/skills`
+   - `install-skills` is for the CLI's bundled/manual skill, not arbitrary external skills
+
+5. **Response Metadata**
    - Include `schemaVersion` in all JSON responses
    - Include `type` field indicating response type
    - Include `ok` boolean for success/failure
@@ -779,6 +788,33 @@ $ mycli messages send --help --json
 }
 ```
 
+**Good: Skill self-installation**
+```bash
+$ mycli install-skills --json
+{
+  "schemaVersion": 1,
+  "type": "introspection.install-skills",
+  "ok": true,
+  "data": {
+    "source": "./skills",
+    "installed": ["mycli"],
+    "destination": "./.agents/skills"
+  }
+}
+
+$ mycli install-skills --claude --global --json
+{
+  "schemaVersion": 1,
+  "type": "introspection.install-skills",
+  "ok": true,
+  "data": {
+    "source": "./skills",
+    "installed": ["mycli"],
+    "destination": "~/.claude/skills"
+  }
+}
+```
+
 **Good: Response metadata**
 ```bash
 $ mycli messages list --output json
@@ -797,6 +833,8 @@ $ mycli messages list --output json
 - [ ] Implement `commands --json` for command discovery
 - [ ] Implement `schema --command <cmd> --output json-schema`
 - [ ] Add `--help --json` to all commands
+- [ ] Implement `install-skills` for the CLI's own bundled skill source
+- [ ] Support `install-skills --global`, `--claude`, and `--claude --global`
 - [ ] Include `schemaVersion`, `type`, `ok` in all JSON responses
 - [ ] Document all error codes
 - [ ] Provide examples in structured help
