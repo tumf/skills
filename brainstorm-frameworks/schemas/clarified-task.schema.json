@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tumf.dev/skills/brainstorm-frameworks/schemas/clarified-task.schema.json",
+  "title": "Clarified Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "clarified_theme",
+    "objective",
+    "constraints",
+    "success_criteria",
+    "mode",
+    "open_questions"
+  ],
+  "properties": {
+    "clarified_theme": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "audience": {"type": ["string", "null"]},
+    "constraints": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "time_horizon": {"type": ["string", "null"]},
+    "success_criteria": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["setting", "flow", "orientation"],
+      "properties": {
+        "setting": {
+          "type": "string",
+          "enum": ["solo", "group", "unknown"]
+        },
+        "flow": {
+          "type": "string",
+          "enum": ["divergence", "synthesis", "divergence_then_synthesis", "unknown"]
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["creative", "business", "mixed", "unknown"]
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    }
+  }
+}

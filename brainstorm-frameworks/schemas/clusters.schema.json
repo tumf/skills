@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tumf.dev/skills/brainstorm-frameworks/schemas/clusters.schema.json",
+  "title": "Clustered Ideas",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["clusters", "discarded_duplicates", "outliers_to_keep", "synthesis_notes"],
+  "properties": {
+    "clusters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "theme", "representative_ideas", "included_idea_refs"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "theme": {"type": "string", "minLength": 1},
+          "representative_ideas": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["title", "description"],
+              "properties": {
+                "title": {"type": "string", "minLength": 1},
+                "description": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "included_idea_refs": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": []
+          }
+        }
+      }
+    },
+    "discarded_duplicates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["duplicate", "kept_as"],
+        "properties": {
+          "duplicate": {"type": "string"},
+          "kept_as": {"type": "string"}
+        }
+      },
+      "default": []
+    },
+    "outliers_to_keep": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "reason"],
+        "properties": {
+          "title": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      },
+      "default": []
+    },
+    "synthesis_notes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    }
+  }
+}

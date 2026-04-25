@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tumf.dev/skills/brainstorm-frameworks/schemas/framework-selection.schema.json",
+  "title": "Framework Selection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "primary_framework",
+    "secondary_framework",
+    "why",
+    "rejected_alternatives",
+    "run_order",
+    "notes_for_next_agent"
+  ],
+  "properties": {
+    "primary_framework": {
+      "$ref": "#/$defs/frameworkName"
+    },
+    "secondary_framework": {
+      "anyOf": [
+        {"$ref": "#/$defs/frameworkName"},
+        {"const": "none"}
+      ]
+    },
+    "why": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1
+    },
+    "rejected_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["framework", "reason"],
+        "properties": {
+          "framework": {"$ref": "#/$defs/frameworkName"},
+          "reason": {"type": "string"}
+        }
+      },
+      "default": []
+    },
+    "run_order": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/frameworkName"},
+      "minItems": 1
+    },
+    "notes_for_next_agent": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    }
+  },
+  "$defs": {
+    "frameworkName": {
+      "type": "string",
+      "enum": [
+        "SCAMPER",
+        "Mind map",
+        "Six Thinking Hats",
+        "KJ method",
+        "Brainwriting",
+        "Random stimulus",
+        "Why / How ladder",
+        "JTBD",
+        "ERRC",
+        "Design Sprint"
+      ]
+    }
+  }
+}

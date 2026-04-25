@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tumf.dev/skills/brainstorm-frameworks/schemas/experiment-plan.schema.json",
+  "title": "Experiment Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["experiments", "notes"],
+  "properties": {
+    "experiments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "idea",
+          "hypothesis",
+          "test",
+          "success_metric",
+          "leading_indicator",
+          "failure_signal",
+          "effort_level",
+          "next_decision"
+        ],
+        "properties": {
+          "idea": {"type": "string", "minLength": 1},
+          "hypothesis": {"type": "string", "minLength": 1},
+          "test": {"type": "string", "minLength": 1},
+          "success_metric": {"type": "string", "minLength": 1},
+          "leading_indicator": {"type": "string", "minLength": 1},
+          "failure_signal": {"type": "string", "minLength": 1},
+          "effort_level": {"type": "string", "enum": ["low", "medium", "high"]},
+          "next_decision": {"type": "string", "enum": ["ship", "revise", "drop", "investigate"]}
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    }
+  }
+}
