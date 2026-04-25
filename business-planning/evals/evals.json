@@ -1,0 +1,77 @@
+{
+  "skill_name": "business-planning",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "同じ事業案を、投資家向けに事業計画として整理してください。事業案は『大口B2B SaaS向けに、OpenAI依存を減らし、オープンウェイトLLMを専有/VPC/オンプレ環境でも運用できる control plane を提供する事業』です。買い手は、エンタープライズ案件が増えてきて、顧客から閉域・専有環境やベンダー依存回避を求められ始めたB2B SaaS企業の経営層・事業責任者です。プロダクトは、モデル選択、ポリシー制御、利用量可視化、課金管理、専有環境配備、運用統制をまとめて提供します。読み手はシード〜アーリーの投資家です。投資家が読みたい形で、合理的で説得力のある事業計画にしてください。フレームワーク名は必要なら使ってよいですが、主役にしないでください。",
+      "expected_output": "同一事業案を投資家向けに最適化し、市場規模、タイミング、成長性、資本効率、勝ち筋を重視した説得力ある事業計画になっている。",
+      "files": [],
+      "expectations": [
+        "The plan clearly identifies the primary reader as an investor or unmistakably writes for investors.",
+        "The plan explains why now is a favorable timing for this business, using enterprise demand, model sovereignty, deployment requirements, or similar market timing logic.",
+        "The plan includes market-size logic, category expansion logic, or an explicit statement about why the addressable opportunity can become meaningfully large.",
+        "The plan explains why this can become a defensible or venture-scale business rather than only a feature or services-heavy offering.",
+        "The plan includes a wedge, go-to-market entry path, or expansion logic that investors could map to growth.",
+        "The plan includes economic logic such as revenue model, gross-margin logic, capital efficiency, or assumptions tied to scale and returns.",
+        "The plan distinguishes what is directly evidenced, benchmarked, or estimated in the numerical story.",
+        "The plan includes a bottom-up numerical logic, driver model, or scenario-based forecast rather than only a qualitative growth narrative.",
+        "The plan preserves the same core business idea by still describing a control plane for open-weight LLM operations for B2B SaaS buyers with dedicated, VPC, or on-prem deployment options.",
+        "The plan prioritizes scale, defensibility, and returns more than internal governance mechanics or customer implementation detail."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "同じ事業案を、取締役会または事業承認会議向けに事業計画として整理してください。事業案は『大口B2B SaaS向けに、OpenAI依存を減らし、オープンウェイトLLMを専有/VPC/オンプレ環境でも運用できる control plane を提供する事業』です。買い手は、エンタープライズ案件が増えてきて、顧客から閉域・専有環境やベンダー依存回避を求められ始めたB2B SaaS企業の経営層・事業責任者です。プロダクトは、モデル選択、ポリシー制御、利用量可視化、課金管理、専有環境配備、運用統制をまとめて提供します。読み手は、既存事業との資源配分や優先順位を判断する取締役会メンバーです。取締役会が承認判断しやすい形で、合理的で説得力のある事業計画にしてください。フレームワーク名は必要なら使ってよいですが、主役にしないでください。",
+      "expected_output": "同一事業案を取締役会向けに最適化し、戦略適合性、資源配分、リスク管理、マイルストーン、承認判断材料を重視した事業計画になっている。",
+      "files": [],
+      "expectations": [
+        "The plan clearly identifies the primary reader as a board, executive approver, or internal approval body, or unmistakably writes for that audience.",
+        "The plan explains strategic fit with the current business, portfolio, or company direction rather than treating the idea as a standalone abstract opportunity.",
+        "The plan discusses resource requirements, organizational load, or opportunity cost in a way relevant to an approval decision.",
+        "The plan addresses downside risks, control points, governance, or decision gates suitable for board-level review.",
+        "The plan includes milestone-based execution such as next 30 to 90 days, phased review points, or approval checkpoints.",
+        "The plan makes clear what the board or approver is being asked to support, approve, sequence, or resource.",
+        "The plan distinguishes what is directly evidenced, benchmarked, or estimated in the numerical story.",
+        "The plan includes a bottom-up numerical logic, driver model, or scenario-based forecast rather than only a qualitative strategy narrative.",
+        "The plan preserves the same core business idea by still describing a control plane for open-weight LLM operations for B2B SaaS buyers with dedicated, VPC, or on-prem deployment options.",
+        "The plan prioritizes strategic fit, risk management, and resource allocation more than venture-scale storytelling or customer rollout detail."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "同じ事業案を、企業顧客向けの提案・説明資料の元になる事業計画として整理してください。事業案は『大口B2B SaaS向けに、OpenAI依存を減らし、オープンウェイトLLMを専有/VPC/オンプレ環境でも運用できる control plane を提供する事業』です。買い手は、エンタープライズ案件が増えてきて、顧客から閉域・専有環境やベンダー依存回避を求められ始めたB2B SaaS企業の経営層・事業責任者です。プロダクトは、モデル選択、ポリシー制御、利用量可視化、課金管理、専有環境配備、運用統制をまとめて提供します。読み手は導入を検討する企業顧客の経営層と事業責任者です。企業顧客が『導入価値があり、導入リスクも管理できそうだ』と判断しやすい形で、合理的で説得力のある事業計画にしてください。フレームワーク名は必要なら使ってよいですが、主役にしないでください。",
+      "expected_output": "同一事業案を企業顧客向けに最適化し、ROI、導入負荷、実装/運用リスク、コンプライアンス適合、信頼性を重視した事業計画になっている。",
+      "files": [],
+      "expectations": [
+        "The plan clearly identifies the primary reader as an enterprise buyer, business partner, or customer-side decision maker, or unmistakably writes for that audience.",
+        "The plan emphasizes customer pain, business impact, ROI, payback logic, or time-to-value.",
+        "The plan addresses deployment fit such as dedicated, VPC, on-prem, compliance, security, or governance-related requirements.",
+        "The plan reduces perceived implementation risk by describing rollout path, operational model, support model, pilot path, or proof points.",
+        "The plan explains why the offering is credible for a risk-aware enterprise buyer, not just why the market is attractive in the abstract.",
+        "The plan includes adoption logic focused on customer value and implementation practicality rather than mostly investor-style market expansion narrative.",
+        "The plan distinguishes what is directly evidenced, benchmarked, or estimated in the numerical story.",
+        "The plan includes a bottom-up numerical logic, driver model, or scenario-based forecast rather than only a qualitative customer-value narrative.",
+        "The plan preserves the same core business idea by still describing a control plane for open-weight LLM operations for B2B SaaS buyers with dedicated, VPC, or on-prem deployment options.",
+        "The plan prioritizes customer adoption, trust, and operational fit more than internal approval mechanics or venture-scale storytelling."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "この事業案について、数値計画の妥当性を中心に事業計画を作ってください。事業案は『大口B2B SaaS向けに、OpenAI依存を減らし、オープンウェイトLLMを専有/VPC/オンプレ環境でも運用できる control plane を提供する事業』です。買い手は、エンタープライズ案件が増えてきて、顧客から閉域・専有環境やベンダー依存回避を求められ始めたB2B SaaS企業の経営層・事業責任者です。プロダクトは、モデル選択、ポリシー制御、利用量可視化、課金管理、専有環境配備、運用統制をまとめて提供します。ここでは読み手最適化よりも、数値計画の合理性を重視してください。直接調査できる項目、ベンチマークで補う項目、推定で埋める項目を分けてください。そのうえで、3〜7個程度の主要ドライバーで bottom-up の予測モデルを組み、low / base / high のシナリオを示してください。結果ありきの逆算は禁止です。どの仮定が結論を強く左右するか、次に何を調査すれば予測精度が上がるかも明記してください。",
+      "expected_output": "数値計画の合理性を主題にした事業計画になっており、調査・ベンチマーク・推定を区別しながら、bottom-up driver model と low/base/high シナリオで将来像を予測している。",
+      "files": [],
+      "expectations": [
+        "The plan clearly centers on numerical planning quality rather than mainly audience-specific persuasion.",
+        "The plan distinguishes sourced inputs, benchmarked inputs, and estimated inputs in the numerical story.",
+        "The plan identifies a sparse bottom-up driver model with roughly 3 to 7 material drivers.",
+        "The plan includes low, base, and high scenarios or an equivalent explicit range-based forecast.",
+        "The plan explains the causal chain from drivers to business outcomes rather than jumping directly to target ARR or headline results.",
+        "The plan identifies which assumptions most strongly affect the forecast or conclusion.",
+        "The plan names follow-up research that would most improve forecast confidence.",
+        "The plan preserves the same core business idea by still describing a control plane for open-weight LLM operations for B2B SaaS buyers with dedicated, VPC, or on-prem deployment options.",
+        "The plan avoids fake precision by using ranges, labeled assumptions, or explicit uncertainty where data is weak.",
+        "The plan does not rely only on TAM-style top-down claims without a bottom-up operating logic."
+      ]
+    }
+  ]
+}

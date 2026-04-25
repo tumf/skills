@@ -23,17 +23,41 @@ Design principles for building CLI tools that LLM/AI agents can safely and relia
 
 [Documentation](./agentic-cli-design/README.md)
 
+### ai-chat-frontend
+
+アプリ組み込み AI チャットフロントエンドの設計・実装ガイド。 前半は言語非依存の抽象設計パターン（ストリーミングファースト、チャット状態マシン、 メッセージモデル、楽観的UI、エラーリカバリ、UX原則、マルチセッション、サーバー設計原則）、 後半は Vercel AI SDK (useChat) による TypeScript 具体実装。 フレームワーク非依存（Next.js, React SPA, Vue, Svelte, SvelteKit, Nuxt 対応）。.
+
+[Documentation](./ai-chat-frontend/README.md)
+
 ### autoresearch-agent
 
 Delegate autoresearch tasks to a headless Claude Code sub-agent process.
 
 [Documentation](./autoresearch-agent/README.md)
 
+### brainstorm-frameworks
+
+Use this skill whenever the user asks for brainstorming, ideation, concept expansion, service improvement ideas, strategy options, workshop structure, or says thinking is stuck and needs more perspectives. Select and apply one or more brainstorming frameworks based on the user's goal, solo vs group setting, divergence vs convergence need, and business vs creative context. Use it even if the user does not name a framework.
+
+[Documentation](./brainstorm-frameworks/README.md)
+
+### business-planning
+
+Use this skill whenever the user asks to create, structure, review, or refine a business plan, new business proposal, growth strategy, GTM outline, or venture hypothesis. Build a rational, persuasive business plan with reader-specific framing and bottom-up numerical planning. Distinguish researched facts from benchmarks and estimates, use frameworks only as supporting tools, and forecast outcomes from causal drivers instead of reverse-engineering a desired result. Use it even when the user only says "事業計画", "戦略を考えたい", "新規事業を整理したい", or asks for AI agent / SaaS business planning without naming any framework.
+
+[Documentation](./business-planning/README.md)
+
 ### clawdbot-config
 
 Comprehensive Clawdbot configuration and skills system management.
 
 [Documentation](./clawdbot-config/README.md)
+
+### dashboard-design-guidebook
+
+デジタル庁のダッシュボードデザイン実践ガイドブックに基づく、見やすいダッシュボード設計・作成のガイド。グラフ選び、レイアウト、カラーパレット、アクセシビリティ、チェックリストを網羅。.
+
+[Documentation](./dashboard-design-guidebook/README.md)
 
 ### fermi-estimation
 
@@ -49,7 +73,7 @@ Comprehensive web scraping, crawling, and data extraction toolkit powered by Fir
 
 ### gogcli
 
-Fast, script-friendly CLI for Google Workspace and Gmail.
+Fast, script-friendly CLI for Google services via `gog`. Use this skill whenever the user needs to work with Gmail, Google Calendar, Drive, Docs, Sheets, Slides, Forms, Apps Script, Contacts, Tasks, People, Chat, Classroom, Groups, Admin, or Keep from the terminal, especially for Google Workspace automation, account setup, OAuth/client configuration, service accounts, domain-wide delegation, or JSON/scriptable workflows. Prefer this skill even when the user does not mention `gog` explicitly but is clearly trying to automate or inspect Google services from a CLI or agent workflow.
 
 [Documentation](./gogcli/README.md)
 
@@ -121,7 +145,7 @@ Slack Web API automation via the slack-rs CLI (Rust).
 
 ### unit-test-hygiene
 
-Audit and reorganize an existing test suite to remove outdated tests, reduce duplication, and isolate external dependencies from unit tests.
+Audit and reorganize an existing test suite to remove outdated tests, reduce duplication, and isolate external dependencies from unit tests. Use this skill whenever the user wants to clean up tests, find obsolete or redundant tests, detect unit tests that directly hit APIs/URLs/timers/commands/databases/filesystems/env state, improve mock boundaries, reduce flakiness, or clarify the boundary between unit and integration tests. Use it even if the user only says things like "整理したい", "モック化したい", "テストが遅い", or "古いテストを掃除したい".
 
 [Documentation](./unit-test-hygiene/README.md)
 
