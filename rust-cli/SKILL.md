@@ -53,7 +53,9 @@ On Windows, `directories::BaseDirs` calls Windows API (`SHGetKnownFolderPath`) d
 #[cfg(not(target_os = "windows"))]
 fn test_home_override() {
     let temp = TempDir::new().unwrap();
-    env::set_var("HOME", temp.path());
+    // Rust 2024: `set_var` is unsafe because it races with other threads reading the environment.
+    // SAFETY: run this test single-threaded (e.g. `cargo test -- --test-threads=1` or `serial_test`).
+    unsafe { env::set_var("HOME", temp.path()) };
     // Test code that uses directories::BaseDirs
 }
 
@@ -62,7 +64,8 @@ fn test_home_override() {
 fn test_cross_platform_home() {
     #[cfg(unix)]
     {
-        env::set_var("HOME", "/tmp/test");
+        // SAFETY: same single-threaded requirement as Pattern 1.
+        unsafe { env::set_var("HOME", "/tmp/test") };
         // Unix-specific test
     }
     
