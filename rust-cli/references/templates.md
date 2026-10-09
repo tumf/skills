@@ -9,7 +9,8 @@ Send logs, progress, and diagnostics to stderr.
 [package]
 name = "mycli"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
 
 [dependencies]
 anyhow = "1"
